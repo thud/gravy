@@ -1,7 +1,3 @@
-<script>
-    import { colors } from '../model/State.js'
-</script>
-
 <style>
     a {
         position: fixed;

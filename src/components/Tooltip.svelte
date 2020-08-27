@@ -1,16 +1,12 @@
-<script>
-    import { slide } from 'svelte/transition'
-    import { expoInOut } from 'svelte/easing'
-    import {
-        algo_to_visualise,
-        last_generated,
-        colors,
-    } from '../model/State.js'
+<script lang="ts">
+    import { slide } from 'svelte/transition';
+    import { expoInOut } from 'svelte/easing';
+    import { algo_to_visualise, last_generated, colors } from '../model/State';
 
     let gen_title = '',
         gen_desc = '',
         gen_link = '',
-        gen_link_url = ''
+        gen_link_url = '';
 
     const gen_texts = [
         [
@@ -67,25 +63,25 @@
             'Wikipedia',
             'https://en.wikipedia.org/wiki/Arborescence_(graph_theory)',
         ],
-    ]
+    ];
 
     $: if ($last_generated !== -1) {
-        ;[gen_title, gen_desc, gen_link, gen_link_url] = gen_texts[
+        [gen_title, gen_desc, gen_link, gen_link_url] = gen_texts[
             $last_generated
-        ]
+        ];
     } else {
-        ;[gen_title, gen_desc, gen_link, gen_link_url] = [
+        [gen_title, gen_desc, gen_link, gen_link_url] = [
             gen_title,
             gen_desc,
             gen_link,
             gen_link_url,
-        ].fill('')
+        ].fill('');
     }
 
     let algo_title = '',
         algo_desc = '',
         algo_link = '',
-        algo_link_url = ''
+        algo_link_url = '';
 
     const algo_texts = [
         [
@@ -154,19 +150,19 @@
             'Wikipedia',
             'https://en.wikipedia.org/wiki/Travelling_salesman_problem',
         ],
-    ]
+    ];
 
     $: if ($algo_to_visualise !== -1) {
-        ;[algo_title, algo_desc, algo_link, algo_link_url] = algo_texts[
+        [algo_title, algo_desc, algo_link, algo_link_url] = algo_texts[
             $algo_to_visualise
-        ]
+        ];
     } else {
-        ;[algo_title, algo_desc, algo_link, algo_link_url] = [
+        [algo_title, algo_desc, algo_link, algo_link_url] = [
             algo_title,
             algo_desc,
             algo_link,
             algo_link_url,
-        ].fill('')
+        ].fill('');
     }
 </script>
 
@@ -189,9 +185,9 @@
         overflow: ellipsis;
     }
 
-    .gen-text,
+    /*.gen-text,
     .algo-text {
-    }
+    }*/
 
     .gen-text {
         margin-bottom: 5px;
@@ -211,8 +207,8 @@
     {#if gen_title}
         <div
             class="gen-text"
-            out:slide={{ duration: 500, easing: expoInOut }}
-            in:slide={{ duration: 300, easing: expoInOut }}>
+            out:slide={{ duration: 500, easing: expoInOut, delay: 0 }}
+            in:slide={{ duration: 300, easing: expoInOut, delay: 0 }}>
             <span class="title">{gen_title}</span>
             -
             {@html gen_desc}
@@ -228,8 +224,8 @@
     {#if algo_title}
         <div
             class="algo-text"
-            out:slide={{ duration: 500, easing: expoInOut }}
-            in:slide={{ duration: 300, easing: expoInOut }}>
+            out:slide={{ duration: 500, easing: expoInOut, delay: 0 }}
+            in:slide={{ duration: 300, easing: expoInOut, delay: 0 }}>
             <span class="title">{algo_title}</span>
             -
             {@html algo_desc}

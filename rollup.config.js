@@ -1,40 +1,46 @@
-import svelte from 'rollup-plugin-svelte'
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import livereload from 'rollup-plugin-livereload'
-import { terser } from 'rollup-plugin-terser'
+import svelte from 'rollup-plugin-svelte';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import livereload from 'rollup-plugin-livereload';
+import { terser } from 'rollup-plugin-terser';
+import sveltePreprocess from 'svelte-preprocess';
+import typescript from 'rollup-plugin-typescript2';
+import ts from 'typescript';
 
-const production = !process.env.ROLLUP_WATCH
+const production = !process.env.ROLLUP_WATCH;
 
 export default {
-    input: 'src/main.js',
+    input: 'src/main.ts',
     output: {
-        sourcemap: true,
+        sourcemap: !production,
         format: 'iife',
         name: 'app',
         file: 'public/build/bundle.js',
     },
     plugins: [
-        svelte({
-            // enable run-time checks when not in production
-            dev: !production,
-            // we'll extract any component CSS out into
-            // a separate file - better for performance
-            css: (css) => {
-                css.write('public/build/bundle.css')
-            },
-        }),
-
         // If you have external dependencies installed from
         // npm, you'll most likely need these plugins. In
         // some cases you'll need additional configuration -
         // consult the documentation for details:
         // https://github.com/rollup/plugins/tree/master/packages/commonjs
         resolve({
+            extensions: ['.ts', '.js', '.svelte'],
             browser: true,
             dedupe: ['svelte'],
         }),
+        svelte({
+            // enable run-time checks when not in production
+            dev: !production,
+            // we'll extract any component CSS out into
+            // a separate file - better for performance
+            css: css => {
+                css.write('public/build/bundle.css');
+            },
+            preprocess: sveltePreprocess(),
+        }),
+        typescript({ typescript: ts, sourceMap: !production }),
         commonjs(),
+        typeCheck(),
 
         // In dev mode, call `npm run start` once
         // the bundle has been generated
@@ -51,15 +57,26 @@ export default {
     watch: {
         clearScreen: false,
     },
+};
+
+function typeCheck() {
+    return {
+        writeBundle() {
+            require('child_process').spawn('svelte-check', {
+                stdio: ['ignore', 'inherit', 'inherit'],
+                shell: true,
+            });
+        },
+    };
 }
 
 function serve() {
-    let started = false
+    let started = false;
 
     return {
         writeBundle() {
             if (!started) {
-                started = true
+                started = true;
 
                 require('child_process').spawn(
                     'npm',
@@ -68,8 +85,8 @@ function serve() {
                         stdio: ['ignore', 'inherit', 'inherit'],
                         shell: true,
                     }
-                )
+                );
             }
         },
-    }
+    };
 }

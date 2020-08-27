@@ -1,15 +1,12 @@
-<script>
+<script lang="ts">
     import {
-        nodes,
-        connections,
         clearing_canvas,
         visualising,
         algo_to_visualise,
         colors,
-    } from '../model/State.js'
-    import { fade } from 'svelte/transition'
-    import { tweened } from 'svelte/motion'
-    //import { clearCanvas } from "../utils/ClearCanvas.svelte";
+    } from '../model/State';
+    import { fade } from 'svelte/transition';
+    import { cubicInOut } from 'svelte/easing';
     import {
         clearCanvas,
         generateRandomUndirected,
@@ -21,34 +18,24 @@
         generateUndirectedRandomTree,
         generateDirectedRandomTree,
         generateReverseDirectedRandomTree,
-    } from '../utils/Generate.js'
-    import NavBarPlaybackTools from './NavBarPlaybackTools.svelte'
+    } from '../utils/Generate';
+    import NavBarPlaybackTools from './NavBarPlaybackTools.svelte';
 
-    let selected_item = -1
+    let hover_algo_dropdown: boolean = false;
+    let hover_gen_dropdown: boolean = false;
 
-    let hover_algo_dropdown = false
-    let hover_gen_dropdown = false
-
-    function genMouseenter(e) {
-        hover_gen_dropdown = true
+    function genMouseenter() {
+        hover_gen_dropdown = true;
     }
-    function genMouseleave(e) {
-        hover_gen_dropdown = false
+    function genMouseleave() {
+        hover_gen_dropdown = false;
     }
 
-    function algoMouseenter(e) {
-        hover_algo_dropdown = true
+    function algoMouseenter() {
+        hover_algo_dropdown = true;
     }
-    function algoMouseleave(e) {
-        hover_algo_dropdown = false
-    }
-
-    function updatestate(fn) {
-        return (e) => {
-            fn(e)
-            $nodes = $nodes
-            $connections = $connections
-        }
+    function algoMouseleave() {
+        hover_algo_dropdown = false;
     }
 </script>
 
@@ -132,30 +119,30 @@
         z-index: 1;
     }
 
-	.dropdown-menu-helper {
-		position: fixed;
+    .dropdown-menu-helper {
+        position: fixed;
         top: calc(5% + 45px);
-		height: 20px;
-		background-color: transparent;
-	}
+        height: 20px;
+        background-color: transparent;
+    }
 
     .dropdown-menu-algo {
         right: calc(5% + 120px);
     }
 
-	.dropdown-menu-helper-algo {
+    .dropdown-menu-helper-algo {
         right: calc(5% + 145px);
-		width: 135px;
-	}
+        width: 135px;
+    }
 
     .dropdown-menu-gen {
         right: calc(5% + 243px);
     }
 
-	.dropdown-menu-helper-gen {
+    .dropdown-menu-helper-gen {
         right: calc(5% + 283px);
-		width: 130px;
-	}
+        width: 130px;
+    }
 
     .dropdown-menu li {
         margin: 15px 13px;
@@ -189,7 +176,7 @@
                 style="color:{$visualising ? $colors.nord5 : $colors.nord1};
                 background-color:{$visualising ? $colors.nord11 : $colors.nord14}"
                 on:click={() => {
-                    $visualising = !$visualising
+                    $visualising = !$visualising;
                 }}
                 href="/#">
                 {#if !$visualising}VISUALISE{:else}STOP{/if}
@@ -242,23 +229,23 @@
 </nav>
 
 {#if hover_algo_dropdown}
-	<div class="dropdown-menu-helper dropdown-menu-helper-algo"
+    <div
+        class="dropdown-menu-helper dropdown-menu-helper-algo"
         on:mouseenter={algoMouseenter}
-        on:mouseleave={algoMouseleave}
-	/>
+        on:mouseleave={algoMouseleave} />
     <div
         class="dropdown-menu dropdown-menu-algo"
         style="background-color:{$colors.nord5}"
         on:mouseenter={algoMouseenter}
         on:mouseleave={algoMouseleave}
-        transition:fade={{ duration: 250 }}>
+        transition:fade={{ duration: 250, delay: 0, easing: cubicInOut }}>
         <div class="dropdown-menu-content">
             <ul class="dropdown-menu-list; color={$colors.nord1};">
                 <li>
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 0
+                            $algo_to_visualise = 0;
                         }}
                         class:disabled={$clearing_canvas}>
                         Depth First Search
@@ -268,7 +255,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 1
+                            $algo_to_visualise = 1;
                         }}
                         class:disabled={$clearing_canvas}>
                         Breadth First Search
@@ -278,7 +265,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 2
+                            $algo_to_visualise = 2;
                         }}
                         class:disabled={$clearing_canvas}>
                         Dijkstra
@@ -288,7 +275,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 3
+                            $algo_to_visualise = 3;
                         }}
                         class:disabled={$clearing_canvas}>
                         Bidirectional Dijkstra
@@ -298,7 +285,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 4
+                            $algo_to_visualise = 4;
                         }}
                         class:disabled={$clearing_canvas}>
                         A*
@@ -308,7 +295,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 5
+                            $algo_to_visualise = 5;
                         }}
                         class:disabled={$clearing_canvas}>
                         Top Sort (DFS)
@@ -318,7 +305,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 6
+                            $algo_to_visualise = 6;
                         }}
                         class:disabled={$clearing_canvas}>
                         Top Sort (Khan's)
@@ -328,7 +315,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 7
+                            $algo_to_visualise = 7;
                         }}
                         class:disabled={$clearing_canvas}>
                         Kosaraju's (SCC)
@@ -338,7 +325,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 8
+                            $algo_to_visualise = 8;
                         }}
                         class:disabled={$clearing_canvas}>
                         Tarjan's (SCC)
@@ -348,7 +335,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 9
+                            $algo_to_visualise = 9;
                         }}
                         class:disabled={$clearing_canvas}>
                         Hamiltonian Cycle
@@ -358,7 +345,7 @@
                     <a
                         href="/#"
                         on:click={() => {
-                            $algo_to_visualise = 10
+                            $algo_to_visualise = 10;
                         }}
                         class:disabled={$clearing_canvas}>
                         Travelling Salesman
@@ -370,16 +357,16 @@
 {/if}
 
 {#if hover_gen_dropdown}
-	<div class="dropdown-menu-helper dropdown-menu-helper-gen"
+    <div
+        class="dropdown-menu-helper dropdown-menu-helper-gen"
         on:mouseenter={genMouseenter}
-        on:mouseleave={genMouseleave}
-	/>
+        on:mouseleave={genMouseleave} />
     <div
         class="dropdown-menu dropdown-menu-gen"
         style="background-color:{$colors.nord5}"
         on:mouseenter={genMouseenter}
         on:mouseleave={genMouseleave}
-        transition:fade={{ duration: 250 }}>
+        transition:fade={{ duration: 250, delay: 0, easing: cubicInOut }}>
         <div class="dropdown-menu-content">
             <ul class="dropdown-menu-list; color={$colors.nord1};">
                 <li>

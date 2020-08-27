@@ -1,11 +1,11 @@
-<script>
-    import { tweened, spring } from 'svelte/motion'
-    import { derived, get } from 'svelte/store'
-    import GraphNode from './GraphNode.svelte'
-    import GraphConnection from './GraphConnection.svelte'
-    import WeightEditor from './WeightEditor.svelte'
-    import StackVis from './StackVis.svelte'
-    import Node from '../model/Node.js'
+<script lang="ts">
+    import { spring } from 'svelte/motion';
+    import { derived, get } from 'svelte/store';
+    import GraphVertex from './GraphVertex.svelte';
+    import GraphConnection from './GraphConnection.svelte';
+    import WeightEditor from './WeightEditor.svelte';
+    import Vertex from '../model/Vertex';
+    import type Connection from '../model/Connection';
     import {
         zoom,
         zoom_multiplier,
@@ -15,7 +15,6 @@
         nodes,
         next_node_id,
         orb_speed,
-        orb_number,
         connections,
         show_cn_directions,
         selected_node,
@@ -25,15 +24,13 @@
         start_node_id,
         end_node_id,
         clearing_canvas,
+        recalculate_vis,
         visualising,
         visual_progress_step_count,
         algo_to_visualise,
-        recalculate_vis,
         colors,
         mode,
-    } from '../model/State.js'
-
-    import { resetAnimations, playVisualisation } from '../utils/Utils.js'
+    } from '../model/State';
     import {
         calcDFS,
         calcBFS,
@@ -46,251 +43,276 @@
         calcTarjan,
         calcHamiltonian,
         calcTS,
-    } from '../utils/Algorithms.js'
+    } from '../utils/Algorithms';
+    import {
+        addVertex,
+        rc2c,
+        playVisualisation,
+        resetAnimations,
+    } from '../utils/Utils';
 
-    import { addNode, c2c, rc2c } from '../utils/Utils.js'
+    const nodecreatedeadzoneradius = 40;
+    let canvas: any;
 
-    const nodecreatedeadzoneradius = 40
-    let canvas
-    let mousedown = false
-
-    function step(t) {
-        $time_offset = t * $orb_speed
+    function step(t: number) {
+        $time_offset = t * $orb_speed;
 
         if ($show_cn_directions) {
-            window.requestAnimationFrame(step)
+            window.requestAnimationFrame(step);
         }
     }
 
     $: if ($show_cn_directions) {
-        window.requestAnimationFrame(step)
+        window.requestAnimationFrame(step);
     }
 
     $: if ($create_start_node) {
-        $create_start_node = false
-        $start_node_id = $next_node_id
+        $create_start_node = false;
+        $start_node_id = $next_node_id;
+        $next_node_id++;
         let x =
-            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8
+            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8;
         let y =
-            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4
-        const newnode = new Node(
-            $next_node_id++,
+            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4;
+        const newnode = new Vertex(
+            $start_node_id,
             spring({ x, y }),
             spring({ x, y }),
             spring(0),
             spring(0)
-        )
-        addNode(newnode)
+        );
+        addVertex(newnode);
     }
 
     $: if ($create_end_node) {
-        $create_end_node = false
-        $end_node_id = $next_node_id
+        $create_end_node = false;
+        $end_node_id = $next_node_id;
+        $next_node_id++;
         let x =
-            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8
+            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8;
         let y =
-            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4
-        const newnode = new Node(
-            $next_node_id++,
+            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4;
+        const newnode = new Vertex(
+            $end_node_id,
             spring({ x, y }),
             spring({ x, y }),
             spring(0),
             spring(0)
-        )
-        addNode(newnode)
+        );
+        addVertex(newnode);
     }
 
     $: if ($mode !== 4) {
-        $selected_cn_weight = -1
+        $selected_cn_weight = -1;
     }
 
     $: if ($mode !== 1) {
-        $selected_node = -1
+        $selected_node = -1;
     }
 
-    let addedScrollListener = false
+    let addedScrollListener = false;
     $: if (canvas && !addedScrollListener) {
         canvas.addEventListener(
             'wheel',
-            (e) => {
-                zoom.update((zm) =>
+            (e: any) => {
+                zoom.update(zm =>
                     Math.min(Math.max(zm - e.deltaY * $zoom_multiplier, 0.4), 3)
-                )
+                );
             },
             { passive: true }
-        )
-        addedScrollListener = true
+        );
+        addedScrollListener = true;
     }
 
-    let lastPos, totDistMoved
-    function handleMousedown(e) {
+    let lastPos: any, totDistMoved: number;
+    function handleMousedown(e: any) {
         if ($selected_node === -1) {
             switch ($mode) {
                 case 0:
                     if (!$clearing_canvas)
                         window.addEventListener(
                             'mouseup',
-                            handleMouseupCreateNode
-                        )
+                            handleMouseupCreateVertex
+                        );
                 default:
                     if ($selected_node === -1) {
-                        $moving_canvas = true
-                        totDistMoved = 0
-                        lastPos = { x: e.clientX, y: e.clientY }
-                        window.addEventListener('mousemove', handleMousemove)
-                        window.addEventListener('mouseup', handleMouseupDefault)
+                        $moving_canvas = true;
+                        totDistMoved = 0;
+                        lastPos = { x: e.clientX, y: e.clientY };
+                        window.addEventListener('mousemove', handleMousemove);
+                        window.addEventListener(
+                            'mouseup',
+                            handleMouseupDefault
+                        );
                     }
             }
         }
     }
 
-    function handleMousemove(e) {
-        let coords = { x: e.clientX, y: e.clientY }
-        let dx = coords.x - lastPos.x
-        let dy = coords.y - lastPos.y
-        lastPos = coords
-        totDistMoved += dx * dx + dy * dy
+    function handleMousemove(e: any) {
+        let coords = { x: e.clientX, y: e.clientY };
+        let dx = coords.x - lastPos.x;
+        let dy = coords.y - lastPos.y;
+        lastPos = coords;
+        totDistMoved += dx * dx + dy * dy;
 
-        canvas_offsets.update((cvo) => ({
+        canvas_offsets.update(cvo => ({
             x: cvo.x + dx / $zoom,
             y: cvo.y + dy / $zoom,
-        }))
+        }));
     }
 
-    function handleMouseupDefault(e) {
-        window.removeEventListener('mousemove', handleMousemove)
-        window.removeEventListener('mouseup', handleMouseupDefault)
-        $moving_canvas = false
+    function handleMouseupDefault() {
+        window.removeEventListener('mousemove', handleMousemove);
+        window.removeEventListener('mouseup', handleMouseupDefault);
+        $moving_canvas = false;
     }
 
-    function handleMouseupCreateNode(e) {
+    function handleMouseupCreateVertex() {
         if (totDistMoved <= nodecreatedeadzoneradius) {
-            const pos = rc2c($zoom, $canvas_offsets, lastPos)
-            const newnode = new Node(
-                $next_node_id++,
+            const pos = rc2c($zoom, $canvas_offsets, lastPos);
+            const newid = $next_node_id;
+            $next_node_id++;
+            const newnode = new Vertex(
+                newid,
                 spring(pos),
                 spring(pos),
                 spring(0),
                 spring(0)
-            )
-            addNode(newnode)
+            );
+            addVertex(newnode);
         }
-        window.removeEventListener('mouseup', handleMouseupCreateNode)
+        window.removeEventListener('mouseup', handleMouseupCreateVertex);
     }
 
     const recalc = derived([visualising, algo_to_visualise], ([vis, algo]) => [
         vis,
         algo,
-    ])
+    ]);
 
-    let unsubscribeprevalgo = () => {}
-    let c_startid, c_endid
-    tryResetRandomStartAndEnd(get(nodes))
+    let unsubscribeprevalgo = () => {};
+    let c_startid: number = -1,
+        c_endid: number = -1;
+    tryResetRandomStartAndEnd();
 
-    function tryResetRandomStartAndEnd(ns) {
+    function tryResetRandomStartAndEnd() {
         const sni = get(start_node_id),
-            eni = get(end_node_id)
-        if (ns.find((node) => node.id === sni)) c_startid = sni
-        else if (!ns.find((node) => node.id === c_startid) && ns.length) {
-            c_startid = ns[Math.floor(Math.random() * ns.length)].id
+            eni = get(end_node_id);
+        if (nodes.has(sni)) c_startid = sni;
+        else if (!nodes.has(c_startid) && nodes.size) {
+            let x = 0;
+            const nsids = nodes.keys();
+            let randindex = Math.floor(Math.random() * nodes.size);
+            while (x++ < randindex) c_startid = nsids.next().value;
         }
 
-        if (ns.find((node) => node.id === eni)) c_endid = eni
-        else if (!ns.find((node) => node.id === c_endid) && ns.length > 1) {
+        if (nodes.has(eni)) c_endid = eni;
+        else if (!nodes.has(c_endid) && nodes.size > 1) {
             do {
-                c_endid = ns[Math.floor(Math.random() * ns.length)].id
-            } while (c_endid === c_startid)
-        } else if (ns.length <= 1) {
-            c_endid = c_startid
+                let x = 0;
+                const nsids = nodes.keys();
+                let randindex = Math.floor(Math.random() * nodes.size);
+                c_endid = nsids.next().value;
+                while (x++ < randindex) c_endid = nsids.next().value;
+            } while (c_endid === c_startid);
+        } else if (nodes.size <= 1) {
+            c_endid = c_startid;
         }
     }
 
-    function fullResetStartAndEnd(ns) {
+    function fullResetStartAndEnd() {
         const sni = get(start_node_id),
-            eni = get(end_node_id)
-        if (ns.find((node) => node.id === sni)) c_startid = sni
-        else if (ns.length) {
-            c_startid = ns[Math.floor(Math.random() * ns.length)].id
+            eni = get(end_node_id);
+        const nsids = nodes.keys();
+        if (nodes.has(sni)) c_startid = sni;
+        else if (nodes.size) {
+            let x = 0;
+            let randindex = Math.floor(Math.random() * nodes.size);
+            while (x++ < randindex) c_startid = nsids.next().value;
         }
 
-        if (ns.find((node) => node.id === eni)) c_endid = eni
-        else if (ns.length > 1) {
+        if (nodes.has(eni)) c_endid = eni;
+        else if (nodes.size > 1) {
             do {
-                c_endid = ns[Math.floor(Math.random() * ns.length)].id
-            } while (c_endid === c_startid)
-        } else if (ns.length <= 1) {
-            c_endid = c_startid
+                let x = 0;
+                let randindex = Math.floor(Math.random() * nodes.size);
+                while (x++ < randindex) c_endid = nsids.next().value;
+            } while (c_endid === c_startid);
+        } else if (nodes.size <= 1) {
+            c_endid = c_startid;
         }
     }
 
     recalc.subscribe(([vis, algo]) => {
         if (vis && algo >= 0 && algo <= 10) {
-            let algofn = () => {}
+            let algofn = (
+                _startid: number,
+                _endid: number,
+                _leave_open?: boolean
+            ) => {};
             switch (algo) {
                 case 0:
-                    algofn = calcDFS
-                    break
+                    algofn = calcDFS;
+                    break;
                 case 1:
-                    algofn = calcBFS
-                    break
+                    algofn = calcBFS;
+                    break;
                 case 2:
-                    algofn = calcDijkstra
-                    break
+                    algofn = calcDijkstra;
+                    break;
                 case 3:
-                    algofn = calcBiDijkstra
-                    break
+                    algofn = calcBiDijkstra;
+                    break;
                 case 4:
-                    algofn = calcAStar
-                    break
+                    algofn = calcAStar;
+                    break;
                 case 5:
-                    algofn = calcTopDFS
-                    break
+                    algofn = calcTopDFS;
+                    break;
                 case 6:
-                    algofn = calcTopKhan
-                    break
+                    algofn = calcTopKhan;
+                    break;
                 case 7:
-                    algofn = calcKosaraju
-                    break
+                    algofn = calcKosaraju;
+                    break;
                 case 8:
-                    algofn = calcTarjan
-                    break
+                    algofn = calcTarjan;
+                    break;
                 case 9:
-                    algofn = calcHamiltonian
-                    break
+                    algofn = calcHamiltonian;
+                    break;
                 case 10:
-                    algofn = calcTS
-                    break
+                    algofn = calcTS;
+                    break;
             }
-            unsubscribeprevalgo()
+            unsubscribeprevalgo();
 
-            fullResetStartAndEnd(get(nodes))
+            fullResetStartAndEnd();
 
-            recalculate_vis.set(true)
+            recalculate_vis.set(true);
 
-            unsubscribeprevalgo = recalculate_vis.subscribe((recalc) => {
-                if (recalc) {
-                    const sni = get(start_node_id)
-                    const eni = get(end_node_id)
-                    const ns = get(nodes)
-                    const cns = get(connections)
+            unsubscribeprevalgo = recalculate_vis.subscribe(re => {
+                if (re) {
+                    const eni = get(end_node_id);
 
-                    tryResetRandomStartAndEnd(ns)
+                    tryResetRandomStartAndEnd();
 
-                    if (ns.length)
-                        algofn(ns, cns, c_startid, c_endid, eni === -1)
+                    if (nodes.size) algofn(c_startid, c_endid, eni === -1);
 
-                    recalculate_vis.set(false)
+                    recalculate_vis.set(false);
                 }
-            })
+            });
 
-            playVisualisation()
+            playVisualisation();
         } else if (!vis) {
-            visual_progress_step_count.set(1)
-            resetAnimations(true)
-            unsubscribeprevalgo()
-            unsubscribeprevalgo = () => {}
+            visual_progress_step_count.set(1);
+            resetAnimations(true);
+            unsubscribeprevalgo();
+            unsubscribeprevalgo = () => {};
         }
-    })
+    });
+
+    setTimeout(() => console.log(connections.getAll()), 10000);
 </script>
 
 <style>
@@ -299,30 +321,22 @@
         width: 100%;
         height: 100%;
     }
-
-    .weight-edit-input {
-        display: block;
-        position: absolute;
-        top: 15%;
-    }
 </style>
 
 {#if $mode === 4}
-    {#each $connections as c (c.id)}
-        <WeightEditor bind:c />
+    {#each [...$connections] as [cid, c] (cid)}
+        <WeightEditor {c} />
     {/each}
 {/if}
-<!--<StackVis />!-->
 <svg
     bind:this={canvas}
     id="canvas"
     style="background-color: {$colors.nord0}"
-    on:mousedown={handleMousedown}
-    onscroll="console.log">
-    {#each $connections as c (c.id)}
-        <GraphConnection bind:c />
+    on:mousedown={handleMousedown}>
+    {#each [...$connections] as [cid, c] (cid)}
+        <GraphConnection {c} />
     {/each}
-    {#each $nodes as n (n.id)}
-        <GraphNode bind:n />
+    {#each [...$nodes] as [nid, n] (nid)}
+        <GraphVertex {n} />
     {/each}
 </svg>

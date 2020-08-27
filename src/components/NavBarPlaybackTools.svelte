@@ -1,17 +1,17 @@
-<script>
-    import { tweened } from 'svelte/motion'
-    import { cubicInOut } from 'svelte/easing'
+<script lang="ts">
+    import { tweened } from 'svelte/motion';
+    import { cubicInOut } from 'svelte/easing';
     import {
         visual_progress,
         visual_progress_step_count,
         visualising,
         colors,
-    } from '../model/State.js'
-    import { playVisualisation } from '../utils/Utils.js'
+    } from '../model/State';
+    import { playVisualisation } from '../utils/Utils';
 
-    const heightTween = tweened(0, { duration: 400, easing: cubicInOut })
+    const heightTween = tweened(0, { duration: 400, easing: cubicInOut });
 
-    $: $heightTween = $visualising ? 1 : 0
+    visualising.subscribe(vis => heightTween.set(vis ? 1 : 0, undefined));
 </script>
 
 <style>
@@ -82,7 +82,7 @@
     </button>
     <button
         on:click={() => {
-            $visual_progress = Math.min(1, $visual_progress + 1 / $visual_progress_step_count)
+            visual_progress.set(Math.min(1, $visual_progress + 1 / $visual_progress_step_count), undefined);
         }} />
     <input
         type="range"

@@ -1,18 +1,19 @@
-<script>
-    import { recalculate_vis, colors } from '../model/State.js'
+<script lang="ts">
+    import { recalculate_vis, colors } from '../model/State';
+    import type Connection from '../model/Connection';
 
-    export let c
-    let input_field
-    let new_weight_temp = c.weight.toString()
+    export let c: Connection;
+    let input_field: any;
+    let new_weight_temp = c.weight.toString();
 
-    let valid_new_weight = true
+    let valid_new_weight = true;
 
     $: if (parseFloat(new_weight_temp)) {
-        valid_new_weight = true
-        c.weight = parseFloat(new_weight_temp)
-        recalculate_vis.set(true)
+        valid_new_weight = true;
+        c.weight = parseFloat(new_weight_temp);
+        recalculate_vis.set(true);
     } else {
-        valid_new_weight = false
+        valid_new_weight = false;
     }
 </script>
 
@@ -33,7 +34,7 @@
         font-weight: bold;
     }
 
-    textarea:focus,
+    /*textarea:focus,*/
     input:focus {
         outline: none;
         border-radius: 5px;

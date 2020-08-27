@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import {
         colors,
         toolbar_visible,
@@ -7,60 +7,55 @@
         default_cn_weight,
         create_start_node,
         create_end_node,
-        start_node_id,
-        end_node_id,
         orb_number,
         orb_speed,
-        visual_progress,
         mode,
-    } from '../model/State.js'
-    import { tweened } from 'svelte/motion'
-    import { cubicInOut } from 'svelte/easing'
+    } from '../model/State';
+    import { tweened } from 'svelte/motion';
+    import { cubicInOut } from 'svelte/easing';
 
-    import { playVisualisation } from '../utils/Utils.js'
+    let maxheight = 50;
 
-    let maxheight = 50
+    let heightTween = tweened(maxheight, { duration: 400, easing: cubicInOut });
 
-    let heightTween = tweened(maxheight, { duration: 400, easing: cubicInOut })
-
-    let toolbar_div
-    function onClickToggleToolbar(e) {
-        $toolbar_visible = !$toolbar_visible
+    let toolbar_div: any;
+    function onClickToggleToolbar() {
+        toolbar_visible.update(tv => !tv);
 
         if ($toolbar_visible) {
-            heightTween.update(($heightTween) => maxheight)
+            heightTween.set(maxheight, undefined);
         } else {
-            heightTween.update(($heightTween) => 0)
-            toolbar_div.scrollTop = 0
+            heightTween.set(0, undefined);
+            toolbar_div.scrollTop = 0;
         }
     }
 
-    function handleClickMode(m) {
+    function handleClickMode(m: number) {
         return () => {
-            $mode = m
-        }
+            $mode = m;
+        };
     }
 
-    function handleClickView(m) {
+    function handleClickView(m: number) {
         switch (m) {
             case 0:
                 return () => {
-                    $show_cn_weights = !$show_cn_weights
-                }
+                    $show_cn_weights = !$show_cn_weights;
+                };
             case 1:
                 return () => {
-                    $show_cn_directions = !$show_cn_directions
-                }
+                    $show_cn_directions = !$show_cn_directions;
+                };
         }
     }
 
-    let default_cn_weight_temp = $default_cn_weight
-    let valid_default_cn_weight = true
+    let default_cn_weight_temp = $default_cn_weight.toString();
+    let valid_default_cn_weight = true;
     $: if (parseFloat(default_cn_weight_temp)) {
-        valid_default_cn_weight = true
-        $default_cn_weight = parseFloat(default_cn_weight_temp)
+        valid_default_cn_weight = true;
+        $default_cn_weight = parseFloat(default_cn_weight_temp);
     } else {
-        valid_default_cn_weight = false
+        valid_default_cn_weight = false;
     }
 </script>
 
@@ -163,7 +158,7 @@
         transition: border-radius 0.3s ease-in-out;
     }
 
-    textarea:focus,
+    /*textarea:focus,*/
     input:focus {
         outline: none;
         border-radius: 5px;
@@ -198,13 +193,13 @@
         <div class="toolbar-section-label">Special</div>
         <div class="toolbar-row">
             <div
-                on:click={(_) => {
-                    $create_start_node = true
+                on:click={_ => {
+                    $create_start_node = true;
                 }}
                 class="toolbar-row-element"
                 id="toolbar-create-start-node"
                 style="color:{$colors.nord0}">
-                Create Start Node
+                Create Start Vertex
                 <svg class="node-demo-svg">
                     <circle
                         id="toolbar-start-node-outer"
@@ -221,13 +216,13 @@
                 </svg>
             </div>
             <div
-                on:click={(_) => {
-                    $create_end_node = true
+                on:click={_ => {
+                    $create_end_node = true;
                 }}
                 class="toolbar-row-element"
                 id="toolbar-create-start-node"
                 style="color:{$colors.nord0}">
-                Create End Node
+                Create End Vertex
                 <svg class="node-demo-svg">
                     <circle
                         id="toolbar-end-node-outer"
@@ -253,7 +248,7 @@
                 id="toolbar-choose-node-creation-mode"
                 style="color:{$colors.nord0};background-color:{$mode === 0 ? $colors.nord4 : $colors.nord5}"
                 on:click={handleClickMode(0)}>
-                Node Creation
+                Vertex Creation
                 <svg class="node-demo-svg">
                     <circle
                         id="toolbar-start-node-outer"
@@ -316,7 +311,7 @@
                 id="toolbar-choose-node-creation-mode"
                 style="color:{$colors.nord0};background-color:{$mode === 2 ? $colors.nord4 : $colors.nord5}"
                 on:click={handleClickMode(2)}>
-                Node Deletion
+                Vertex Deletion
                 <svg class="node-demo-svg">
                     <circle
                         id="toolbar-start-node-outer"
@@ -576,8 +571,8 @@
                 min="1"
                 max="15"
                 step="1"
-                on:change={(_) => {
-                    $show_cn_directions = true
+                on:change={_ => {
+                    $show_cn_directions = true;
                 }}
                 bind:value={$orb_number} />
         </div>
@@ -594,8 +589,8 @@
                 min="0.00001"
                 max="0.0005"
                 step="0.000001"
-                on:change={(_) => {
-                    $show_cn_directions = true
+                on:change={_ => {
+                    $show_cn_directions = true;
                 }}
                 bind:value={$orb_speed} />
         </div>
