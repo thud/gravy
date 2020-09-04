@@ -85,6 +85,7 @@ export let create_end_node: BooleanWritable = writable(false);
 export let start_node_id: NumWritable = writable(-1);
 export let end_node_id: NumWritable = writable(-1);
 export let mode: NumWritable = writable(0);
+export let tutorial_open: BooleanWritable = writable(true);
 
 export let visualising: BooleanWritable = writable(false);
 export let algo_to_visualise: NumWritable = writable(-1);

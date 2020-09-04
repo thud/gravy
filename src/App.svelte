@@ -5,6 +5,7 @@
     import GithubButton from './components/GithubButton.svelte';
     import Toolbar from './components/Toolbar.svelte';
     import Tooltip from './components/Tooltip.svelte';
+    import Tutorial from './components/Tutorial.svelte';
 </script>
 
 <style>
@@ -24,4 +25,5 @@
     <Toolbar />
     <Tooltip />
     <GraphCanvas />
+    <Tutorial />
 </main>
