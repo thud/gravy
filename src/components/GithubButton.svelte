@@ -12,8 +12,8 @@
     }
 
     svg {
-        max-width: 50px;
-        max-height: 50px;
+        max-width: 3rem;
+        max-height: 3rem;
         width: 5vw;
         height: 5vw;
         margin: 0;

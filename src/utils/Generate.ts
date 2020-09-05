@@ -33,7 +33,6 @@ const placement_timeout = 15000;
 
 export async function clearCanvas() {
     clearing_canvas.set(true);
-    console.log('clearing');
 
     get(nodes).forEach((node: Vertex) => {
         node.kill = true;
@@ -122,7 +121,6 @@ async function generateRandom(dir: number) {
     unsubscribenni();
 
     start_time = performance.now();
-    console.log('nodes.size=', nodes.size);
 
     for (const [nid, nodea] of nodes.getAll()) {
         const no_to_connect = Math.random() * max_to_connect + 1;
@@ -168,7 +166,6 @@ async function generateRandom(dir: number) {
                 ) &&
                 !nodeb.kill
             ) {
-                console.log('here', idA, idB, nodea, nodeb);
                 const newcn = new Connection(
                     nci,
                     idA,
@@ -420,7 +417,7 @@ export async function generateComplete() {
             if (performance.now() - start_time > placement_timeout) break;
 
             const cn_weight = Math.floor(Math.random() * 10 + 1);
-            const cn_direction = Math.floor(Math.random() * 3);
+            const cn_direction = 0;
 
             const nodeb = [...nodes.getAll()][j][1];
 
@@ -504,7 +501,6 @@ export async function generateBinaryTree() {
     await waitForDoneMovingIfMoving();
 
     for (let i = 1; i < count; i++) {
-        //console.log("attempting to insert node ", toadd[i]);
         if (clearing || !root || root.kill) {
             unsubscribenni();
             unsubscribenci();

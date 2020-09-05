@@ -1,14 +1,19 @@
 import { get } from 'svelte/store';
+import { spring } from 'svelte/motion';
 import {
     nodes,
     connections,
+    start_node_id,
+    end_node_id,
+    next_node_id,
     recalculate_vis,
     visual_progress,
     moving_canvas,
+    clearing_canvas,
     canvas_offsets,
     zoom,
 } from '../model/State';
-import type Vertex from '../model/Vertex';
+import Vertex from '../model/Vertex';
 import type Connection from '../model/Connection';
 import type { Pos } from '../model/Utils';
 
@@ -101,6 +106,53 @@ export async function playVisualisation() {
     visual_progress.set(0, { duration: 500 });
     await sleepPromise(500);
     visual_progress.set(1, { duration: 7500 });
+}
+
+export async function addRandomVertex() {
+    if (get(clearing_canvas)) await waitForEmpty();
+    let nni = 0;
+    next_node_id.update(val => {
+        nni = val;
+        return val + 1;
+    });
+    const bounds = getUsableBounds();
+    if (nodes.has(nni)) return;
+
+    const minradius = 90;
+
+    let x: number, y: number;
+    let attempts = 0;
+    do {
+        x = bounds[0][0] + Math.random() * (bounds[0][1] - bounds[0][0]);
+        y = bounds[1][0] + Math.random() * (bounds[1][1] - bounds[1][0]);
+        attempts++;
+    } while (
+        [...nodes.getAll()].some(
+            ([_id, node]) =>
+                getDistance(get(node.posSpringA), { x, y }) < minradius
+        ) &&
+        attempts < 20
+    );
+
+    const newVertex = new Vertex(
+        nni,
+        spring({ x, y }),
+        spring({ x, y }),
+        spring(0),
+        spring(0)
+    );
+    nodes.setObj(nni, newVertex);
+    return nni;
+}
+
+export async function addStartVertex() {
+    start_node_id.set(await addRandomVertex());
+    recalculate_vis.set(true);
+}
+
+export async function addEndVertex() {
+    end_node_id.set(await addRandomVertex());
+    recalculate_vis.set(true);
 }
 
 export function addVertex(node: Vertex) {

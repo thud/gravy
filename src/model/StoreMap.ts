@@ -9,34 +9,34 @@ export default class StoreMap<K, V> {
     _subfns_counter: number;
 
     constructor(arr: [K, V][]) {
-        console.log(arr.map(([key, obj]) => [key, writable(obj)]));
+        //console.log(arr.map(([key, obj]) => [key, writable(obj)]));
         this._map = new Map();
         this._itemunsubfns = new Map();
         this._setsubfns = new Map();
         this._subfns_counter = 0;
 
         for (const [id, obj] of arr) this.setObj(id, obj);
-        console.log('StoreMap created = ', this._map.entries());
+        //console.log('StoreMap created = ', this._map.entries());
     }
 
     getAll() {
-        console.log('ran getAll on StoreMap');
+        //console.log('ran getAll on StoreMap');
         return new Map(
             Array.from(this._map.entries()).map(([id, obj]) => [id, get(obj)])
         );
     }
 
     getObj(id: K): V {
-        console.log('ran getObj on StoreMap');
+        //console.log('ran getObj on StoreMap');
         return get(this._map.get(id));
     }
 
     setObj(id: K, newobj: V) {
-        console.log('\t\tran setObj on StoreMap, setting', newobj, 'at', id);
+        //console.log('\t\tran setObj on StoreMap, setting', newobj, 'at', id);
         const newobjwritable = writable(newobj);
         this._map.set(id, newobjwritable);
         if (this._itemunsubfns.has(id)) this._itemunsubfns.get(id)();
-        console.log(this);
+        //console.log(this);
         const unsubscribenewobj = newobjwritable.subscribe(() => {
             this.runAllSubscriptions();
         });
@@ -45,7 +45,7 @@ export default class StoreMap<K, V> {
     }
 
     subscribe(fn: Function): Function {
-        console.log('new subscription, running callback');
+        //console.log('new subscription, running callback');
         //fn(this.getAll());
         const counter = this._subfns_counter++;
         this._setsubfns.set(counter, fn);
@@ -56,7 +56,7 @@ export default class StoreMap<K, V> {
     }
 
     runAllSubscriptions() {
-        console.log('-----------ranallsubscriptions------------');
+        //console.log('-----------ranallsubscriptions------------');
         const cur = this.getAll();
         this._setsubfns.forEach(x => {
             x(cur);
@@ -76,7 +76,7 @@ export default class StoreMap<K, V> {
     }
 
     delete(id: K) {
-        console.log('storemap unsubscribing from', id);
+        //console.log('storemap unsubscribing from', id);
         if (this._itemunsubfns.has(id)) this._itemunsubfns.get(id)();
         this._itemunsubfns.delete(id);
         const res = this._map.delete(id);

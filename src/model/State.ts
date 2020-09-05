@@ -2,8 +2,8 @@ import { writable, readable } from 'svelte/store';
 import { tweened, spring } from 'svelte/motion';
 import { expoInOut } from 'svelte/easing';
 import StoreMap from './StoreMap';
-import Vertex from './Vertex';
-import Connection from './Connection';
+import type Vertex from './Vertex';
+import type Connection from './Connection';
 import type {
     NumSpring,
     NumReadable,
@@ -45,43 +45,18 @@ export let canvas_offsets: PosSpring = spring({ x: 0, y: 0 });
 export let moving_canvas: BooleanWritable = writable(false);
 export let time_offset: NumWritable = writable(0);
 export let selected_node: NumWritable = writable(-1);
-export let nodes: StoreMap<number, Vertex> = new StoreMap([
-    [
-        1,
-        new Vertex(
-            1,
-            spring({ x: 100, y: -100 }),
-            spring({ x: 100, y: -100 }),
-            spring(0, { stiffness: 0.2, damping: 0.5 }),
-            spring(0, { stiffness: 0.2, damping: 0.3 })
-        ),
-    ],
-    [
-        2,
-        new Vertex(
-            2,
-            spring({ x: -400, y: -100 }),
-            spring({ x: -400, y: -100 }),
-            spring(0, { stiffness: 0.2, damping: 0.5 }),
-            spring(0, { stiffness: 0.2, damping: 0.3 })
-        ),
-    ],
-]);
-export let connections: StoreMap<number, Connection> = new StoreMap([
-    [0, new Connection(0, 1, 2, 5, 0, tweened(0, { easing: expoInOut }))],
-]);
+export let nodes: StoreMap<number, Vertex> = new StoreMap([]);
+export let connections: StoreMap<number, Connection> = new StoreMap([]);
 export let next_node_id: NumWritable = writable(3);
 export let next_cn_id: NumWritable = writable(1);
 export let show_node_labels: BooleanWritable = writable(true);
-export let show_cn_weights: BooleanWritable = writable(false);
+export let show_cn_weights: BooleanWritable = writable(true);
 export let show_cn_directions: BooleanWritable = writable(false);
 export let default_cn_weight: NumWritable = writable(1);
 export let selected_cn_weight: NumWritable = writable(-1);
 export let toolbar_visible: BooleanWritable = writable(true);
 export let orb_number: NumWritable = writable(5);
 export let orb_speed: NumWritable = writable(0.00005);
-export let create_start_node: BooleanWritable = writable(false);
-export let create_end_node: BooleanWritable = writable(false);
 export let start_node_id: NumWritable = writable(-1);
 export let end_node_id: NumWritable = writable(-1);
 export let mode: NumWritable = writable(0);

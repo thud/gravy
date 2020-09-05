@@ -1,7 +1,12 @@
 import { tweened } from 'svelte/motion';
 import { expoInOut } from 'svelte/easing';
-import { writable } from 'svelte/store';
-import type { NumTweened, AnyArrayWritable, BooleanWritable } from './Utils';
+import { writable, derived } from 'svelte/store';
+import type {
+    NumTweened,
+    AnyArrayWritable,
+    BooleanWritable,
+    PosDerived,
+} from './Utils';
 
 export default class Connection {
     id: number;
@@ -11,8 +16,7 @@ export default class Connection {
     directionCounter: number;
     lengthTween: NumTweened;
     kill: boolean;
-    centerX: number;
-    centerY: number;
+    centerPos: PosDerived;
     settingDirection: boolean;
     animationEvents: AnyArrayWritable;
     progressFlipped: BooleanWritable;
@@ -34,8 +38,7 @@ export default class Connection {
         this.lengthTween = lengthTween;
         this.weight = weight;
         this.kill = false;
-        this.centerX = 0;
-        this.centerY = 0;
+        this.centerPos = null;
         this.settingDirection = true;
         this.directionCounter = directionCounter;
 
@@ -43,8 +46,3 @@ export default class Connection {
         this.progressFlipped = writable(false);
     }
 }
-
-function connectionwritable() {
-    return writable<Connection>(undefined);
-}
-export type ConnectionWritable = ReturnType<typeof connectionwritable>;

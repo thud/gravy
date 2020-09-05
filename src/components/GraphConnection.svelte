@@ -246,12 +246,14 @@
         }
     });
 
-    $: c.centerX =
-        (1 - 0.5 * $lengthTween) * $nodeAPos.x +
-        0.5 * $lengthTween * $nodeBPos.x;
-    $: c.centerY =
-        (1 - 0.5 * $lengthTween) * $nodeAPos.y +
-        0.5 * $lengthTween * $nodeBPos.y;
+    c.centerPos = derived(
+        [lengthTween, nodeAPos, nodeBPos],
+        ([lt, apos, bpos]) => ({
+            x: (1 - 0.5 * lt) * apos.x + 0.5 * lt * bpos.x,
+            y: (1 - 0.5 * lt) * apos.y + 0.5 * lt * bpos.y,
+        })
+    );
+    let centerPos = c.centerPos;
 
     $: orbs = Array.from(Array($orb_number).keys());
 </script>
@@ -327,9 +329,10 @@
         transition:fade={{ duration: 200, delay: 0, easing: cubicInOut }}
         fill={$colors.nord4}
         class="cn-weight-text"
-        style=" font-size:{16 * $zoom}px; {$mode === 3 || $mode === 5 ? 'cursor: pointer' : ''}"
-        x={c.centerX}
-        y={c.centerY + 6 * $zoom}>
+        style="font-size:{$zoom}rem; {$mode === 3 || $mode === 5 ? 'cursor: pointer;' : ''}
+        {$zoom < 0.6 ? 'display: none;' : ''}"
+        x={$centerPos.x}
+        y={$centerPos.y + 6 * $zoom}>
         {c.weight}
     </text>
     <text
@@ -338,9 +341,10 @@
         fill={$colors.nord0}
         mask="url(#textMask{c.id})"
         class="cn-weight-text"
-        style=" font-size:{16 * $zoom}px; {$mode === 3 || $mode === 5 ? 'cursor: pointer' : ''}"
-        x={c.centerX}
-        y={c.centerY + 6 * $zoom}>
+        style=" font-size:{$zoom}rem; {$mode === 3 || $mode === 5 ? 'cursor: pointer;' : ''}
+        {$zoom < 0.6 ? 'display: none;' : ''}"
+        x={$centerPos.x}
+        y={$centerPos.y + 6 * $zoom}>
         {c.weight}
     </text>
 {/if}

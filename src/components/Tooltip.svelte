@@ -134,19 +134,19 @@
         ],
         [
             "Tarjan's Algorithm",
-            'Algorithm which finds Strongly Connected Components (SCCs) in a single round of Depth First Searches.',
+            'Algorithm which finds Strongly Connected Components (SCCs) in a single round of Depth First Search.',
             'Wikipedia',
             "https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm",
         ],
         [
             'Hamiltonian Cycle (Backtracking)',
-            'Depth First Search with backtracking to try to find a Hamiltonian Cycle (path which visits all nodes exactly once and ends at first node). This runs in O(n!) time meaning that it will likely only run on small graphs.',
+            'Depth First Search with backtracking to try to find a Hamiltonian Cycle (path which visits all nodes exactly once and ends at first node). This runs in O(n!) time meaning that it will likely only run smoothly on small graphs.',
             'Wikipedia',
             'https://en.wikipedia.org/wiki/Hamiltonian_path',
         ],
         [
             'Travelling Salesman (Backtracking)',
-            'Depth First Search with backtracking to try to find all Hamiltonian Cycles and takes the cycle with maximum score. This runs in O(n!) time meaning that it will likely only run on small graphs.',
+            'Depth First Search with backtracking to try to find all Hamiltonian Cycles and takes the cycle with minimum cost. This runs in O(n!) time meaning that it will likely only run smoothly on small graphs.',
             'Wikipedia',
             'https://en.wikipedia.org/wiki/Travelling_salesman_problem',
         ],
@@ -176,11 +176,11 @@
     .tooltip-container {
         position: absolute;
         color: white;
-        padding: 0 30px;
+        padding: 0 1.9rem;
         text-align: center;
         bottom: 5%;
-        left: min(calc(5vw + 50px), 10vw);
-        right: calc(5% + 300px);
+        left: min(calc(5vw + 3.1rem), 10vw);
+        right: calc(5% + 18.75rem);
         box-sizing: border-box;
         overflow: ellipsis;
     }
@@ -190,7 +190,7 @@
     }*/
 
     .gen-text {
-        margin-bottom: 5px;
+        margin-bottom: 0.25rem;
     }
 
     .title {

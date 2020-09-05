@@ -80,7 +80,6 @@
         sizeSpringB.set(0);
         killConnections();
         alreadykilling = true;
-        console.log('initiating kill', n.id);
     }
 
     $: if (n.kill && $sizeSpringA <= 0 && $sizeSpringB <= 0) {
@@ -297,7 +296,7 @@
     <text
         on:mousedown={handleMousedown}
         transition:fade={{ duration: 150, easing: cubicInOut, delay: 0 }}
-        style="fill:{$textFill}; font-size:{16 * $zoom}px; {$zoom < 0.6 ? 'display: none;' : ''}
+        style="fill:{$textFill}; font-size:{$zoom}rem; {$zoom < 0.6 ? 'display: none;' : ''}
         {$mode === 0 ? 'cursor: move;' : ''}
         {$mode === 1 || $mode === 2 || $mode === 3 ? 'cursor: pointer;' : ''}"
         x={$pb.x}

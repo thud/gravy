@@ -43,11 +43,11 @@
     nav {
         position: fixed;
         width: 90%;
-        height: 60px;
+        height: 3.75rem;
         top: 5%;
         left: 5%;
-        padding: 0 20px;
-        border-radius: 15px;
+        padding: 0 1.25rem;
+        border-radius: 1rem;
         overflow: hidden;
         box-sizing: border-box;
     }
@@ -73,9 +73,10 @@
     }
 
     .visualise-button {
-        width: 85px;
+        width: 5.5rem;
         text-align: center;
         transition: background-color 0.3s ease;
+        overflow: hidden;
     }
 
     #logo {
@@ -83,69 +84,69 @@
         font-weight: bold;
         text-decoration: none;
         text-align: center;
-        font-size: 29.5px;
-        padding: 6px;
-        margin: 6px;
+        font-size: 1.8rem;
+        padding: 0.4rem;
+        margin: 0.4rem;
     }
 
     nav li a {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 1rem;
         display: block;
-        padding: 8px 12px;
-        margin: 12px 6px;
+        padding: 0.5rem 0.75rem;
+        margin: 0.75rem 0.33rem;
         text-decoration: none;
-        border-radius: 10px;
+        border-radius: 0.6rem;
         cursor: pointer;
         transition: background-color 0.2s ease-in-out;
     }
 
     .dropdown-icon {
-        width: 20px;
+        width: 1.25rem;
         float: right;
         -webkit-transition: -webkit-transform 0.3s ease-in-out;
         transition: transform 0.3s ease-in-out;
     }
 
     .dropdown-menu {
-        min-width: 100px;
+        min-width: 6.25rem;
         background-color: white;
         position: fixed;
-        top: calc(5% + 60px);
-        border-radius: 0 0 5px 5px;
+        top: calc(5% + 3.75rem);
+        border-radius: 0 0 0.4rem 0.4rem;
         border: grey solid;
-        border-width: 0 1px 1px 1px;
+        border-width: 0 0.07rem 0.07rem 0.07rem;
         z-index: 1;
     }
 
     .dropdown-menu-helper {
         position: fixed;
-        top: calc(5% + 45px);
-        height: 20px;
+        top: calc(5% + 2.8rem);
+        height: 1.1rem;
         background-color: transparent;
     }
 
     .dropdown-menu-algo {
-        right: calc(5% + 120px);
+        right: calc(5% + 7.5rem);
     }
 
     .dropdown-menu-helper-algo {
-        right: calc(5% + 145px);
-        width: 135px;
+        right: calc(5% + 9.1rem);
+        width: 8.4rem;
     }
 
     .dropdown-menu-gen {
-        right: calc(5% + 243px);
+        right: calc(5% + 15.2rem);
     }
 
     .dropdown-menu-helper-gen {
-        right: calc(5% + 283px);
-        width: 130px;
+        right: calc(5% + 17.6rem);
+        width: 8.1rem;
     }
 
     .dropdown-menu li {
-        margin: 15px 13px;
+        margin: 1rem 0.75rem;
     }
 
     .dropdown-menu a {
@@ -158,9 +159,11 @@
         color: inherit;
     }
 
-    a.disabled {
+    a.visdisabled {
         pointer-events: none;
         cursor: pointer;
+        background-color: #aaaa !important;
+        color: #aaa !important;
     }
 </style>
 
@@ -173,8 +176,9 @@
         <li>
             <a
                 class="visualise-button"
+                class:visdisabled={$algo_to_visualise < 0}
                 style="color:{$visualising ? $colors.nord5 : $colors.nord1};
-                background-color:{$visualising ? $colors.nord11 : $colors.nord14}"
+                background-color:{$visualising ? $colors.nord11 : $colors.nord14};"
                 on:click={() => {
                     $visualising = !$visualising;
                 }}

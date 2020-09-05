@@ -44,6 +44,9 @@ export type PosWritable = ReturnType<typeof poswritable>;
 function anyderived() {
     return derived<any, any>(undefined, undefined);
 }
+function numderived() {
+    return derived<any, number>(undefined, undefined);
+}
 function posderived() {
     return derived<any, Pos>(undefined, undefined);
 }
@@ -51,5 +54,6 @@ function strderived() {
     return derived<any, string>(undefined, undefined);
 }
 export type AnyDerived = ReturnType<typeof anyderived>;
+export type NumDerived = ReturnType<typeof anyderived>;
 export type PosDerived = ReturnType<typeof posderived>;
 export type StrDerived = ReturnType<typeof strderived>;

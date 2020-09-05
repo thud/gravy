@@ -19,8 +19,6 @@
         show_cn_directions,
         selected_node,
         selected_cn_weight,
-        create_start_node,
-        create_end_node,
         start_node_id,
         end_node_id,
         clearing_canvas,
@@ -31,6 +29,7 @@
         colors,
         mode,
     } from '../model/State';
+    import { generateRandomUndirected } from '../utils/Generate';
     import {
         calcDFS,
         calcBFS,
@@ -64,42 +63,6 @@
 
     $: if ($show_cn_directions) {
         window.requestAnimationFrame(step);
-    }
-
-    $: if ($create_start_node) {
-        $create_start_node = false;
-        $start_node_id = $next_node_id;
-        $next_node_id++;
-        let x =
-            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8;
-        let y =
-            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4;
-        const newnode = new Vertex(
-            $start_node_id,
-            spring({ x, y }),
-            spring({ x, y }),
-            spring(0),
-            spring(0)
-        );
-        addVertex(newnode);
-    }
-
-    $: if ($create_end_node) {
-        $create_end_node = false;
-        $end_node_id = $next_node_id;
-        $next_node_id++;
-        let x =
-            (Math.random() * canvas.clientWidth) / 2 + canvas.clientWidth / 8;
-        let y =
-            (Math.random() * canvas.clientHeight) / 2 + canvas.clientHeight / 4;
-        const newnode = new Vertex(
-            $end_node_id,
-            spring({ x, y }),
-            spring({ x, y }),
-            spring(0),
-            spring(0)
-        );
-        addVertex(newnode);
     }
 
     $: if ($mode !== 4) {
@@ -312,7 +275,8 @@
         }
     });
 
-    setTimeout(() => console.log(connections.getAll()), 10000);
+    // start with a random graph;
+    generateRandomUndirected();
 </script>
 
 <style>

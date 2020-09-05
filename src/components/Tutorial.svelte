@@ -1,36 +1,37 @@
 <script lang="ts">
     import { tutorial_open, colors } from '../model/State';
-	import { fade } from "svelte/transition";
-	import { expoInOut } from "svelte/easing";
+    import { fade } from 'svelte/transition';
+    import { cubicInOut } from 'svelte/easing';
 
     let stage = 0;
 
     const tips = [
         [
-            'Welcome to <strong>Gravy</strong> (short for graph visualisation, I guess?).<br>Gravy is a toy that allows you to generate graphs and visualise some common graph-based algorithms.',
-            '/#',
+            'Welcome to <strong>Gravy</strong> (short for <strong>gra</strong>ph <strong>v</strong>isualisation, I guess?).<br>Gravy is a toy that allows you to generate graphs and visualise some common graph-based algorithms.',
+            '/images/example.png',
         ],
         [
             'To generate a common type of graph, use the <em>Generate</em> dropdown in the top navbar. You can zoom in and out with the scroll wheel, and pan around by dragging. on empty space.',
-            '/#',
+            '/images/gendropdown.png',
         ],
         [
             'To create your own graph, you can use the <em>toolbar</em> in the bottom right. Here, you can choose from several modes which allow you to create/delete nodes and edges.',
-            '/#',
+            '/images/toolbar1.png',
         ],
         [
             'All edges have an associated <strong>weight</strong> and <strong>direction</strong>. These come in to play when visualising algorithms. To change or hide them, you can use options in the toolbar.',
-            '/#',
+            '/images/toolbar2.png',
         ],
         [
             'To actually visualise an algorithm, select it in the <em>Algorithms</em> dropdown in the top navbar. Then press the <em>VISUALISE</em> button next to it. You can use the playback tools to play or scroll through a visualisation. The visualisation will recalculate as you play with the graph so give that a try and have fun!',
-            '/#',
+            '/images/algodropdown.png',
+            '/images/playbacktools.png',
         ],
     ];
 
-    let tip: String = 'Loading...',
-        imgUrl: String = 'Loading...';
-    $: [tip, imgUrl] = tips[stage];
+    let tip: string = 'Loading...',
+        imgUrls: string[] = ['/#'];
+    $: [tip, ...imgUrls] = tips[stage];
 </script>
 
 <style>
@@ -38,52 +39,87 @@
         position: absolute;
         display: flex;
         align-items: stretch;
+        justify-content: space-between;
         flex-direction: column;
-        top: calc(50% - 300px);
-        left: calc(50% - 300px);
-        right: calc(50% - 300px);
-        bottom: calc(50% - 300px);
-        border: 1px solid grey;
-        border-radius: 8px;
+        top: max(calc(50% - 30rem), 7%);
+        left: max(calc(50% - 30rem), 7%);
+        right: max(calc(50% - 30rem), 7%);
+        bottom: max(calc(50% - 30rem), 7%);
+        border: 0.05rem solid grey;
+        border-radius: 0.75rem;
         box-sizing: border-box;
-        padding: 20px;
+        padding: 1rem;
     }
 
     .tutorial-close {
         position: absolute;
         top: 0;
-        right: 10px;
+        right: 1rem;
         cursor: pointer;
         font-weight: 700;
-        font-size: 30px;
+        font-size: 2rem;
     }
 
     .tutorial-title {
         font-family: Inter, sans-serif;
-        font-size: 30px;
+        font-size: 2rem;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 1rem;
     }
 
-    .tutorial-progressdots-container {
-        margin-top: auto;
+    .tutorial-imgs-container {
+        box-sizing: border-box;
+        padding: 1rem;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .tutorial-img {
+        max-width: 100%;
+        border-radius: 0.5rem;
     }
 
     .tutorial-progressdot {
         border-radius: 100%;
-        width: 10px;
-        height: 10px;
+        width: 0.8rem;
+        height: 0.8rem;
         display: inline-block;
-        margin: 5px;
+        margin: 0.4rem;
         transition: background-color 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+    button {
+        font-family: Inter, sans-serif;
+        font-weight: 700;
+        text-align: center;
+        border-radius: 0.5rem;
+        width: 7rem;
+        cursor: pointer;
+        border: none !important;
+    }
+
+    .tutorial-footer {
+        display: flex;
+        flex-direction: row-reverse;
+        margin-top: 1rem;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        justify-content: space-between;
+        align-content: flex-end;
     }
 </style>
 
 {#if $tutorial_open}
-	<div
-		class="tutorial-container"
-		style="background-color:{$colors.nord5};"
-		transition:fade={{ duration: 500, easing: expoInOut }}>
+    <div
+        class="tutorial-container"
+        style="background-color:{$colors.nord5};"
+        transition:fade={{ delay: 0, duration: 500, easing: cubicInOut }}>
         <div
             class="tutorial-close"
             on:click={() => {
@@ -95,7 +131,15 @@
         <div class="tutorial-tip">
             {@html tip}
         </div>
-        <!--<img class="tutorial-img" />-->
+        <div class="tutorial-imgs-container">
+            {#each imgUrls as url}
+                <img
+                    class="tutorial-img"
+                    src={url}
+                    style="max-height: {100 / imgUrls.length - 5}%;" />
+            {/each}
+        </div>
+
         <div class="tutorial-progressdots-container">
             {#each tips as _ctip, i}
                 <div
@@ -105,6 +149,28 @@
                         stage = i;
                     }} />
             {/each}
+        </div>
+
+        <div class="tutorial-footer">
+            <button
+                style="background-color:{$colors.nord14};color:{$colors.nord0};"
+                on:click={() => {
+                    if (++stage === tips.length) {
+                        tutorial_open.set(false);
+                        stage--;
+                    }
+                }}>
+                {stage === tips.length - 1 ? 'START' : 'NEXT'}
+            </button>
+            {#if stage > 0}
+                <button
+                    style="background-color:{$colors.nord11};color:{$colors.nord5};"
+                    on:click={() => {
+                        stage--;
+                    }}>
+                    PREVIOUS
+                </button>
+            {/if}
         </div>
     </div>
 {/if}

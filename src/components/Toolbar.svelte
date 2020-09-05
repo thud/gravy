@@ -5,14 +5,13 @@
         show_cn_weights,
         show_cn_directions,
         default_cn_weight,
-        create_start_node,
-        create_end_node,
         orb_number,
         orb_speed,
         mode,
     } from '../model/State';
     import { tweened } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
+    import { addStartVertex, addEndVertex } from '../utils/Utils';
 
     let maxheight = 50;
 
@@ -62,16 +61,18 @@
 <style>
     .toolbar-container {
         position: fixed;
-        left: calc(95% - 300px);
-        width: 300px;
-        border-radius: 10px;
-        padding: 10px;
+        left: calc(95% - 18.75rem);
+        bottom: 5%;
+        width: 18.75rem;
+        max-height: 62rem;
+        border-radius: 0.6rem;
+        padding: 0.6rem;
         box-sizing: border-box;
         margin: 0;
         overflow: hidden;
         text-align: center;
         font-family: 'Inter', sans-serif;
-        font-size: 15px;
+        font-size: 1rem;
         font-weight: 600;
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
@@ -84,14 +85,14 @@
     .toolbar-label {
         font-family: 'Inter', sans-serif;
         font-weight: 700;
-        font-size: 25px;
+        font-size: 1.6rem;
         text-align: left;
-        margin: 5px;
+        margin: 0.25rem;
         cursor: pointer;
     }
 
     .dropdown-icon {
-        width: 30px;
+        width: 2rem;
         float: right;
         -webkit-transition: -webkit-transform 0.3s ease-in-out;
         transition: transform 0.3s ease-in-out;
@@ -101,11 +102,11 @@
         width: 100%;
         display: flex;
         flex-direction: column;
-        margin: 10px 0;
+        margin: 0.6rem 0;
     }
 
     .toolbar-section-label {
-        margin: 10px 0;
+        margin: 0.6rem 0;
     }
 
     .toolbar-row {
@@ -118,19 +119,19 @@
     }
 
     .toolbar-row-element {
-        padding: 10px;
-        border-radius: 7px;
+        padding: 0.6rem;
+        border-radius: 0.4rem;
         cursor: pointer;
         box-sizing: border-box;
     }
 
     .toolbar-row-element:not(.nohover):hover {
-        background-color: #d8dee9 !important;
+        opacity: 0.75;
     }
 
     .toolbar-row-element-inline {
-        padding: 10px;
-        border-radius: 7px;
+        padding: 0.6rem;
+        border-radius: 0.5rem;
         cursor: unset !important;
         box-sizing: border-box;
         display: flex;
@@ -141,34 +142,33 @@
     .node-demo-svg {
         width: 100%;
         box-sizing: border-box;
-        height: 40px;
-        margin: 10px 0;
+        height: 2.5rem;
+        margin: 0.6rem 0;
     }
 
     .toolbar-settings-input {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 0.9rem;
         text-align: center;
         box-sizing: border-box;
-        margin: 0 10px;
-        padding: 5px 1px;
-        border-radius: 15px;
-        border: 1px solid #4c566a grey;
+        margin: 0 0.6rem;
+        padding: 0.25rem 0.06rem;
+        border-radius: 1rem;
+        border: 0.06rem solid grey;
         transition: border-radius 0.3s ease-in-out;
     }
 
-    /*textarea:focus,*/
     input:focus {
         outline: none;
-        border-radius: 5px;
+        border-radius: 0.25rem;
     }
 </style>
 
 <div
     bind:this={toolbar_div}
-    style="background-color:{$colors.nord5}; height:calc(60px + {$heightTween}%);
-    top: calc(95% - {$heightTween}% - 60px);overflow:{$toolbar_visible ? 'scroll' : 'hidden'}"
+    style="background-color:{$colors.nord5}; height:calc(3.75rem + {$heightTween}%);
+    overflow:{$toolbar_visible ? 'scroll' : 'hidden'}"
     class="toolbar-container">
 
     <div
@@ -193,9 +193,7 @@
         <div class="toolbar-section-label">Special</div>
         <div class="toolbar-row">
             <div
-                on:click={_ => {
-                    $create_start_node = true;
-                }}
+                on:click={addStartVertex}
                 class="toolbar-row-element"
                 id="toolbar-create-start-node"
                 style="color:{$colors.nord0}">
@@ -216,9 +214,7 @@
                 </svg>
             </div>
             <div
-                on:click={_ => {
-                    $create_end_node = true;
-                }}
+                on:click={addEndVertex}
                 class="toolbar-row-element"
                 id="toolbar-create-start-node"
                 style="color:{$colors.nord0}">
@@ -376,7 +372,7 @@
                 on:click={handleClickMode(4)}>
                 Edit Edge Weights
                 <svg class="node-demo-svg">
-                    <text x="47%" y="30%" style="font-size: 12px">5</text>
+                    <text x="47%" y="30%" style="font-size: 0.7rem">5</text>
                     <line
                         x1="25%"
                         y1="75%"
@@ -465,7 +461,7 @@
                 on:click={handleClickView(0)}>
                 View Edge Weights
                 <svg class="node-demo-svg">
-                    <text x="47%" y="30%" style="font-size: 12px">5</text>
+                    <text x="47%" y="30%" style="font-size: 0.7rem">5</text>
                     <line
                         x1="25%"
                         y1="75%"
@@ -555,7 +551,7 @@
             <input
                 class="toolbar-settings-input"
                 style="color:{$colors.nord0};background-color:{valid_default_cn_weight ? $colors.nord5 : $colors.nord13};
-                width: 70px; flex: 0;"
+                width: 4.4rem; flex: 0;"
                 bind:value={default_cn_weight_temp} />
         </div>
         <div class="toolbar-row">
@@ -566,7 +562,7 @@
             </div>
             <input
                 class="toolbar-settings-input"
-                style="color:{$colors.nord0};background-color:{valid_default_cn_weight ? $colors.nord5 : $colors.nord13};width:70px;"
+                style="width:4.4rem;"
                 type="range"
                 min="1"
                 max="15"
@@ -584,7 +580,7 @@
             </div>
             <input
                 class="toolbar-settings-input"
-                style="color:{$colors.nord0};background-color:{valid_default_cn_weight ? $colors.nord5 : $colors.nord13};width:70px;"
+                style="width:4.4rem;"
                 type="range"
                 min="0.00001"
                 max="0.0005"

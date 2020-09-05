@@ -1477,25 +1477,26 @@ export function calcHamiltonian(
     startid: number,
     endid?: number,
     leave_open?: boolean
-) {}
-export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
-/*export function calcHamiltonian(ns: Map<number,Vertex>, cns: Map<number,Connection>, startid: number, endid?:number, leave_open?:boolean) {
-    const visited_nodes:Map<number,[number,boolean,number]> = new Map();
-    const visited_cns:Map<number,[number,number]> = new Map();
-    const node_part_of_final_path:Set<number> = new Set();
-    const cn_part_of_final_path:Set<number> = new Set();
+) {
+    const visited_nodes: Map<number, [boolean, number][]> = new Map();
+    const visited_cns: Map<
+        number,
+        [boolean, boolean, number, number][]
+    > = new Map();
+    const node_part_of_final_path: Set<number> = new Set();
+    const cn_part_of_final_path: Set<number> = new Set();
     let time_counter = 0;
 
-    function runDFS(i:number) {
-        const nodea = ns.get(i);
+    function runDFS(i: number) {
+        const nodea = nodes.getObj(i);
         if (!nodea) return false;
 
         if (!visited_nodes.has(i)) visited_nodes.set(i, []);
         visited_nodes.get(i).push([true, time_counter]);
-        if (i === startid && node_part_of_final_path.size)
-            return node_part_of_final_path.size === ns.size;
+        if (i === startid && node_part_of_final_path.size > 1)
+            return node_part_of_final_path.size === nodes.size;
         for (const cnid of nodea.direct_cn) {
-            const cn = cns.get(cnid);
+            const cn = connections.getObj(cnid);
             if (!cn) continue;
 
             let nodebid = cn.idB;
@@ -1508,8 +1509,10 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
             }
 
             if (
-                !node_part_of_final_path.has(nodebid) &&
-                !cn_part_of_final_path.has(cnid)
+                !cn_part_of_final_path.has(cnid) &&
+                (!node_part_of_final_path.has(nodebid) ||
+                    (nodebid === startid &&
+                        nodes.size === node_part_of_final_path.size))
             ) {
                 if (!visited_cns.has(cnid)) visited_cns.set(cnid, []);
                 visited_cns
@@ -1518,11 +1521,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
 
                 node_part_of_final_path.add(nodebid);
                 cn_part_of_final_path.add(cnid);
-                if (
-                    nodebid !== startid ||
-                    node_part_of_final_path.size === ns.size
-                )
-                    if (runDFS(nodebid)) return true;
+                if (runDFS(nodebid)) return true;
                 visited_cns
                     .get(cnid)
                     .push([false, flipped, time_counter, ++time_counter]);
@@ -1534,10 +1533,11 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
         return false;
     }
 
+    node_part_of_final_path.add(startid);
     const found = runDFS(startid);
     resetAnimations();
     visited_nodes.forEach((offsets, nid) => {
-        const nextnode = ns.get(nid);
+        const nextnode = nodes.getObj(nid);
         if (!nextnode) return;
         const ae = get(nextnode.animationEvents);
         const toadd = offsets.map(([forward, offset]) => ({
@@ -1554,7 +1554,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
         ae.push(...toadd);
     });
     visited_cns.forEach((offsets, cnid) => {
-        const nextcn = cns.get(cnid);
+        const nextcn = connections.getObj(cnid);
         if (!nextcn) return;
         const ae = get(nextcn.animationEvents);
         const toadd = [];
@@ -1587,7 +1587,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
     });
 
     if (!found) {
-        ns.forEach((node) => {
+        [...nodes.getAll()].forEach(([_nid, node]) => {
             const ae = get(node.animationEvents);
             ae.push({
                 method: 'set_processingState',
@@ -1595,7 +1595,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
                 t: 1,
             });
         });
-        cns.forEach((cn) => {
+        [...connections.getAll()].forEach(([_cnid, cn]) => {
             const ae = get(cn.animationEvents);
             ae.push(
                 {
@@ -1619,23 +1619,26 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {}
     visual_progress_step_count.set(time_counter);
 }
 
-export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, startid: number, endid?:number, leave_open?:boolean) {
-    const visited_nodes = new Map();
-    const visited_cns = new Map();
-    const node_part_of_path = new Set();
-    const cn_part_of_path = new Set();
-    let node_part_of_best_path = new Set();
-    let cn_part_of_best_path = new Set();
+export function calcTS(startid: number, endid?: number, leave_open?: boolean) {
+    const visited_nodes: Map<number, [boolean, number][]> = new Map();
+    const visited_cns: Map<
+        number,
+        [boolean, boolean, number, number][]
+    > = new Map();
+    const node_part_of_path: Set<number> = new Set();
+    const cn_part_of_path: Set<number> = new Set();
+    let node_part_of_best_path: Set<number> = new Set();
+    let cn_part_of_best_path: Set<number> = new Set();
     let time_counter = 0;
     let bestsum = Infinity;
 
-    function runDFS(i, weightsum = 0) {
-        const nodea = ns.get(i);
+    function runDFS(i: number, weightsum = 0) {
+        const nodea = nodes.getObj(i);
         if (!nodea) return false;
         if (!visited_nodes.has(i)) visited_nodes.set(i, []);
         visited_nodes.get(i).push([true, time_counter]);
         if (i === startid && node_part_of_path.size) {
-            if (node_part_of_path.size === ns.size) {
+            if (node_part_of_path.size === nodes.size) {
                 if (weightsum < bestsum) {
                     node_part_of_best_path = new Set(node_part_of_path);
                     cn_part_of_best_path = new Set(cn_part_of_path);
@@ -1644,7 +1647,7 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
             } else return false;
         }
         for (const cnid of nodea.direct_cn) {
-            const cn = cns.get(cnid);
+            const cn = connections.getObj(cnid);
             if (!cn) continue;
 
             let nodebid = cn.idB;
@@ -1664,7 +1667,10 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
 
                 node_part_of_path.add(nodebid);
                 cn_part_of_path.add(cnid);
-                if (nodebid !== startid || node_part_of_path.size === ns.size)
+                if (
+                    nodebid !== startid ||
+                    node_part_of_path.size === nodes.size
+                )
                     runDFS(nodebid, weightsum + cn.weight);
                 visited_cns
                     .get(cnid)
@@ -1682,7 +1688,7 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
     resetAnimations();
 
     visited_nodes.forEach((offsets, nid) => {
-        const nextnode = ns.get(nid);
+        const nextnode = nodes.getObj(nid);
         if (!nextnode) return;
         const ae = get(nextnode.animationEvents);
         const toadd = offsets.map(([forward, offset]) => ({
@@ -1699,7 +1705,7 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
         ae.push(...toadd);
     });
     visited_cns.forEach((offsets, cnid) => {
-        const nextcn = cns.get(cnid);
+        const nextcn = connections.getObj(cnid);
         if (!nextcn) return;
         const ae = get(nextcn.animationEvents);
         const toadd = [];
@@ -1739,7 +1745,7 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
     });
 
     if (bestsum === Infinity) {
-        ns.forEach((node) => {
+        [...nodes.getAll()].forEach(([_nid, node]) => {
             const ae = get(node.animationEvents);
             ae.push({
                 method: 'set_processingState',
@@ -1747,7 +1753,7 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
                 t: 1,
             });
         });
-        cns.forEach((cn) => {
+        [...connections.getAll()].forEach(([_cnid, cn]) => {
             const ae = get(cn.animationEvents);
             ae.push(
                 {
@@ -1769,4 +1775,4 @@ export function calcTS(ns: Map<number,Vertex>, cns: Map<number,Connection>, star
         });
     }
     visual_progress_step_count.set(time_counter);
-}*/
+}

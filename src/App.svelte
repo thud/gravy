@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Head from './components/Head.svelte';
     import NavBar from './components/NavBar.svelte';
     import GraphCanvas from './components/GraphCanvas.svelte';
     import GithubButton from './components/GithubButton.svelte';
@@ -19,11 +18,10 @@
 </style>
 
 <main>
-    <Head />
+    <GraphCanvas />
     <NavBar />
     <GithubButton />
     <Toolbar />
     <Tooltip />
-    <GraphCanvas />
     <Tutorial />
 </main>
