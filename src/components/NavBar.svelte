@@ -80,13 +80,10 @@
     }
 
     #logo {
-        font-family: 'Inter', sans-serif;
-        font-weight: bold;
-        text-decoration: none;
-        text-align: center;
-        font-size: 1.8rem;
         padding: 0.4rem;
-        margin: 0.4rem;
+        margin-top: 0.45rem;
+        margin-bottom: 0.25rem;
+        height: 2.25rem;
     }
 
     nav li a {
@@ -171,7 +168,8 @@
 <nav style="background-color:{$colors.nord5}">
     <ul>
         <li class="nav-left">
-            <a id="logo" href="/" style="color:{$colors.nord1}">Gravy</a>
+            <!--<a id="logo" href="/" style="color:{$colors.nord1}">Gravy</a>-->
+            <img id="logo" src="/images/gravy.svg" alt="gravy logo" />
         </li>
         <li>
             <a
