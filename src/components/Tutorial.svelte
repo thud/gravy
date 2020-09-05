@@ -5,33 +5,33 @@
 
     let stage = 0;
 
-    const tips = [
+    const tips: [string, ...[string, string][]][] = [
         [
             'Welcome to <strong>Gravy</strong> (short for <strong>gra</strong>ph <strong>v</strong>isualisation, I guess?).<br>Gravy is a toy that allows you to generate graphs and visualise some common graph-based algorithms.',
-            '/images/example.png',
+            ['/images/example.png', 'screenshot demo image'],
         ],
         [
             'To generate a common type of graph, use the <em>Generate</em> dropdown in the top navbar. You can zoom in and out with the scroll wheel, and pan around by dragging. on empty space.',
-            '/images/gendropdown.png',
+            ['/images/gendropdown.png', 'screenshot of "Generate" dropdown'],
         ],
         [
             'To create your own graph, you can use the <em>toolbar</em> in the bottom right. Here, you can choose from several modes which allow you to create/delete nodes and edges.',
-            '/images/toolbar1.png',
+            ['/images/toolbar1.png', 'screenshot of toolbar'],
         ],
         [
             'All edges have an associated <strong>weight</strong> and <strong>direction</strong>. These come in to play when visualising algorithms. To change or hide them, you can use options in the toolbar.',
-            '/images/toolbar2.png',
+            ['/images/toolbar2.png', "screenshot of toolbar's view options"],
         ],
         [
             'To actually visualise an algorithm, select it in the <em>Algorithms</em> dropdown in the top navbar. Then press the <em>VISUALISE</em> button next to it. You can use the playback tools to play or scroll through a visualisation. The visualisation will recalculate as you play with the graph so give that a try and have fun!',
-            '/images/algodropdown.png',
-            '/images/playbacktools.png',
+            ['/images/algodropdown.png', 'screenshot of "Algorithms" dropdown'],
+            ['/images/playbacktools.png', 'screenshot of playback tools'],
         ],
     ];
 
     let tip: string = 'Loading...',
-        imgUrls: string[] = ['/#'];
-    $: [tip, ...imgUrls] = tips[stage];
+        imgs: [string, string][] = [];
+    $: [tip, ...imgs] = tips[stage];
 </script>
 
 <style>
@@ -132,11 +132,12 @@
             {@html tip}
         </div>
         <div class="tutorial-imgs-container">
-            {#each imgUrls as url}
+            {#each imgs as [src, alt]}
                 <img
                     class="tutorial-img"
-                    src={url}
-                    style="max-height: {100 / imgUrls.length - 5}%;" />
+                    {src}
+                    {alt}
+                    style="max-height: {100 / imgs.length - 5}%;" />
             {/each}
         </div>
 
