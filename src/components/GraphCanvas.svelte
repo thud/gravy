@@ -5,7 +5,6 @@
     import GraphConnection from './GraphConnection.svelte';
     import WeightEditor from './WeightEditor.svelte';
     import Vertex from '../model/Vertex';
-    import type Connection from '../model/Connection';
     import {
         zoom,
         zoom_multiplier,
