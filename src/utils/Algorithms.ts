@@ -243,15 +243,20 @@ export function calcDijkstra(
     const visited_nodes = new Map();
     const visited_cns = new Map();
     const flipped_cn = new Map();
+    const dist = new Map();
+    const popped = new Set();
     let q = [[startid, -1, 0]];
     let time_counter = 0;
 
     let found = false;
+    dist.set(startid, 0);
 
     while (q.length) {
         const _ = q.sort((a, b) => b[2] - a[2]);
 
         const [i, from_cnid, cost] = q.pop();
+        popped.add(i);
+        dist.set(i, cost);
         q = q.filter(([nodeid, _, __]) => nodeid !== i);
         const nodea = nodes.getObj(i);
         if (!nodea) continue;
@@ -283,10 +288,16 @@ export function calcDijkstra(
                     flipped = false;
                 }
 
-                if (!visited_nodes.has(nodebid)) {
-                    visited_nodes.set(nodebid, [i, cnid, -1]);
-                    q.push([nodebid, cnid, cost + cn.weight]);
-                    flipped_cn.set(cnid, flipped);
+                if (!popped.has(nodebid)) {
+                    if (
+                        !dist.has(nodebid) ||
+                        dist.get(nodebid) > cost + cn.weight
+                    ) {
+                        visited_nodes.set(nodebid, [i, cnid, -1]);
+                        q.push([nodebid, cnid, cost + cn.weight]);
+                        flipped_cn.set(cnid, flipped);
+                        dist.set(nodebid, cost + cn.weight);
+                    }
                 }
             }
         });
@@ -363,6 +374,8 @@ export function calcBiDijkstra(
     const visited_nodes = new Map();
     const visited_by_a = new Set();
     const visited_by_b = new Set();
+    const dist = new Map();
+    const popped = new Set();
     const visited_cns = new Map();
     const flipped_cn = new Map();
 
@@ -383,6 +396,7 @@ export function calcBiDijkstra(
 
         const [i, from_cnid, cost, v_by_a] = q.pop();
         q = q.filter(([nodeid, _, __, vba]) => nodeid !== i || v_by_a != vba);
+        popped.add(i);
         const nodea = nodes.getObj(i);
         if (!nodea) continue;
 
@@ -422,13 +436,22 @@ export function calcBiDijkstra(
 
             if (
                 (v_by_a && visited_by_b.has(nodebid)) ||
-                (!v_by_a && visited_by_a.has(nodebid)) ||
-                !visited_nodes.has(nodebid)
+                (!v_by_a && visited_by_a.has(nodebid))
             ) {
                 if (!visited_nodes.has(nodebid))
                     visited_nodes.set(nodebid, [i, cnid, -1, v_by_a]);
                 q.push([nodebid, cnid, cost + cn.weight, v_by_a]);
                 flipped_cn.set(cnid, flipped);
+            } else if (!popped.has(nodebid)) {
+                if (
+                    !dist.has(nodebid) ||
+                    dist.get(nodebid) > cost + cn.weight
+                ) {
+                    visited_nodes.set(nodebid, [i, cnid, -1, v_by_a]);
+                    q.push([nodebid, cnid, cost + cn.weight, v_by_a]);
+                    flipped_cn.set(cnid, flipped);
+                    dist.set(nodebid, cost + cn.weight);
+                }
             }
         });
     }
@@ -571,6 +594,8 @@ export function calcAStar(
     const visited_nodes = new Map();
     const visited_cns = new Map();
     const flipped_cn = new Map();
+    const popped = new Set();
+    const dist = new Map();
     const endnode = nodes.getObj(endid);
     let endnode_pos: Pos;
     if (endnode) endnode_pos = get(endnode.posSpringA);
@@ -582,6 +607,8 @@ export function calcAStar(
     while (q.length) {
         const _ = q.sort((a, b) => b[2] + b[3] - (a[2] + a[3]));
         const [i, from_cnid, gcost, hcost] = q.pop();
+        popped.add(i);
+        dist.set(i, gcost + hcost);
         const nodea = nodes.getObj(i);
         if (!nodea) continue;
 
@@ -610,24 +637,32 @@ export function calcAStar(
                     flipped = false;
                 }
 
-                if (!visited_nodes.has(nodebid)) {
-                    visited_nodes.set(nodebid, [i, cnid, -1]);
+                if (!popped.has(nodebid)) {
                     const nodeb = nodes.getObj(nodebid);
+                    if (nodeb) {
+                        const nodeb_pos = get(nodeb.posSpringA);
 
-                    const nodeb_pos = get(nodeb.posSpringA);
-                    let newhcost = 0;
-                    if (nodes.has(endid)) {
-                        const dx = endnode_pos.x - nodeb_pos.x,
-                            dy = endnode_pos.y - nodeb_pos.y;
-                        newhcost = Math.sqrt(dx * dx + dy * dy);
+                        let newhcost = 0;
+                        if (nodes.has(endid)) {
+                            const dx = endnode_pos.x - nodeb_pos.x,
+                                dy = endnode_pos.y - nodeb_pos.y;
+                            newhcost = Math.sqrt(dx * dx + dy * dy);
+                        }
+                        if (
+                            !dist.has(nodebid) ||
+                            dist.get(nodebid) > gcost + cn.weight + hcost
+                        ) {
+                            visited_nodes.set(nodebid, [i, cnid, -1]);
+                            q.push([
+                                nodebid,
+                                cnid,
+                                gcost + cn.weight,
+                                hcostweight * newhcost,
+                            ]);
+                            flipped_cn.set(cnid, flipped);
+                            dist.set(nodebid, gcost + cn.weight + hcost);
+                        }
                     }
-                    q.push([
-                        nodebid,
-                        cnid,
-                        gcost + cn.weight,
-                        hcostweight * newhcost,
-                    ]);
-                    flipped_cn.set(cnid, flipped);
                 }
             }
         });
