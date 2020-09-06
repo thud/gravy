@@ -279,6 +279,7 @@ export function calcDijkstra(
             const cn = connections.getObj(cnid);
 
             if (cn) {
+				const cnweight = get(cn.weight);
                 let nodebid = cn.idB;
                 let flipped = false;
                 if (cn.idB === i) {
@@ -291,12 +292,12 @@ export function calcDijkstra(
                 if (!popped.has(nodebid)) {
                     if (
                         !dist.has(nodebid) ||
-                        dist.get(nodebid) > cost + cn.weight
+                        dist.get(nodebid) > cost + cnweight
                     ) {
                         visited_nodes.set(nodebid, [i, cnid, -1]);
-                        q.push([nodebid, cnid, cost + cn.weight]);
+                        q.push([nodebid, cnid, cost + cnweight]);
                         flipped_cn.set(cnid, flipped);
-                        dist.set(nodebid, cost + cn.weight);
+                        dist.set(nodebid, cost + cnweight);
                     }
                 }
             }
@@ -424,7 +425,8 @@ export function calcBiDijkstra(
         cns_to_follow.forEach(cnid => {
             const cn = connections.getObj(cnid);
             if (!cn) return;
-
+			
+			const cnweight = get(cn.weight);
             let nodebid = cn.idB;
             let flipped = false;
             if (cn.idB === i) {
@@ -440,17 +442,17 @@ export function calcBiDijkstra(
             ) {
                 if (!visited_nodes.has(nodebid))
                     visited_nodes.set(nodebid, [i, cnid, -1, v_by_a]);
-                q.push([nodebid, cnid, cost + cn.weight, v_by_a]);
+                q.push([nodebid, cnid, cost + cnweight, v_by_a]);
                 flipped_cn.set(cnid, flipped);
             } else if (!popped.has(nodebid)) {
                 if (
                     !dist.has(nodebid) ||
-                    dist.get(nodebid) > cost + cn.weight
+                    dist.get(nodebid) > cost + cnweight
                 ) {
                     visited_nodes.set(nodebid, [i, cnid, -1, v_by_a]);
-                    q.push([nodebid, cnid, cost + cn.weight, v_by_a]);
+                    q.push([nodebid, cnid, cost + cnweight, v_by_a]);
                     flipped_cn.set(cnid, flipped);
-                    dist.set(nodebid, cost + cn.weight);
+                    dist.set(nodebid, cost + cnweight);
                 }
             }
         });
@@ -628,6 +630,7 @@ export function calcAStar(
             const cn = connections.getObj(cnid);
 
             if (cn) {
+				const cnweight = get(cn.weight);
                 let nodebid = cn.idB;
                 let flipped = false;
                 if (cn.idB === i) {
@@ -650,17 +653,17 @@ export function calcAStar(
                         }
                         if (
                             !dist.has(nodebid) ||
-                            dist.get(nodebid) > gcost + cn.weight + hcost
+                            dist.get(nodebid) > gcost + cnweight + hcost
                         ) {
                             visited_nodes.set(nodebid, [i, cnid, -1]);
                             q.push([
                                 nodebid,
                                 cnid,
-                                gcost + cn.weight,
+                                gcost + cnweight,
                                 hcostweight * newhcost,
                             ]);
                             flipped_cn.set(cnid, flipped);
-                            dist.set(nodebid, gcost + cn.weight + hcost);
+                            dist.set(nodebid, gcost + cnweight + hcost);
                         }
                     }
                 }
@@ -1685,6 +1688,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {
             const cn = connections.getObj(cnid);
             if (!cn) continue;
 
+			const cnweight = get(cn.weight);
             let nodebid = cn.idB;
             let flipped = false;
             if (cn.idB === i) {
@@ -1706,7 +1710,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {
                     nodebid !== startid ||
                     node_part_of_path.size === nodes.size
                 )
-                    runDFS(nodebid, weightsum + cn.weight);
+                    runDFS(nodebid, weightsum + cnweight);
                 visited_cns
                     .get(cnid)
                     .push([false, flipped, time_counter, ++time_counter]);

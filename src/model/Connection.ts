@@ -3,6 +3,7 @@ import { expoInOut } from 'svelte/easing';
 import { writable, derived } from 'svelte/store';
 import type {
     NumTweened,
+	NumWritable,
     AnyArrayWritable,
     BooleanWritable,
     PosDerived,
@@ -12,7 +13,7 @@ export default class Connection {
     id: number;
     idA: number;
     idB: number;
-    weight: number;
+    weight: NumWritable;
     directionCounter: number;
     lengthTween: NumTweened;
     kill: boolean;
@@ -36,7 +37,7 @@ export default class Connection {
         this.idA = idA;
         this.idB = idB;
         this.lengthTween = lengthTween;
-        this.weight = weight;
+        this.weight = writable(weight);
         this.kill = false;
         this.centerPos = null;
         this.settingDirection = true;

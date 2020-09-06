@@ -24,7 +24,8 @@
     import { delConnection, c2c } from '../utils/Utils';
 
     export let c: Connection;
-
+	
+	let cweight = c.weight;
     let lengthTween = c.lengthTween;
     let opacityTween = tweened(1, { easing: expoInOut, duration: 500 });
     let nodeA: Vertex,
@@ -333,7 +334,7 @@
         {$zoom < 0.6 ? 'display: none;' : ''}"
         x={$centerPos.x}
         y={$centerPos.y + 6 * $zoom}>
-        {c.weight}
+        {$cweight}
     </text>
     <text
         on:mousedown={handleMousedown}
@@ -345,6 +346,6 @@
         {$zoom < 0.6 ? 'display: none;' : ''}"
         x={$centerPos.x}
         y={$centerPos.y + 6 * $zoom}>
-        {c.weight}
+        {$cweight}
     </text>
 {/if}
