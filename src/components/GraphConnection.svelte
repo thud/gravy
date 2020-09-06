@@ -24,8 +24,8 @@
     import { delConnection, c2c } from '../utils/Utils';
 
     export let c: Connection;
-	
-	let cweight = c.weight;
+
+    let cweight = c.weight;
     let lengthTween = c.lengthTween;
     let opacityTween = tweened(1, { easing: expoInOut, duration: 500 });
     let nodeA: Vertex,

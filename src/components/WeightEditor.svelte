@@ -3,7 +3,7 @@
     import type Connection from '../model/Connection';
 
     export let c: Connection;
-	let cweight = c.weight;
+    let cweight = c.weight;
     $: centerPos = c.centerPos;
     let input_field: any;
     let new_weight_temp = $cweight.toString();
@@ -12,7 +12,7 @@
 
     $: if (parseFloat(new_weight_temp)) {
         valid_new_weight = true;
-		c.weight.set(parseFloat(new_weight_temp));
+        c.weight.set(parseFloat(new_weight_temp));
         recalculate_vis.set(true);
     } else {
         valid_new_weight = false;

@@ -3,7 +3,7 @@ import { expoInOut } from 'svelte/easing';
 import { writable, derived } from 'svelte/store';
 import type {
     NumTweened,
-	NumWritable,
+    NumWritable,
     AnyArrayWritable,
     BooleanWritable,
     PosDerived,

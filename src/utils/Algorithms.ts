@@ -33,7 +33,7 @@ export function calcDFS(
 
     function runDFS(i: number) {
         const nodea = nodes.getObj(i);
-        if (!nodea) console.error('no node found with this id');
+        if (!nodea) return;
         visited_nodes.set(i, time_counter);
         if (i === endid && !leave_open) {
             node_part_of_final_path.add(i);
@@ -279,7 +279,7 @@ export function calcDijkstra(
             const cn = connections.getObj(cnid);
 
             if (cn) {
-				const cnweight = get(cn.weight);
+                const cnweight = get(cn.weight);
                 let nodebid = cn.idB;
                 let flipped = false;
                 if (cn.idB === i) {
@@ -425,8 +425,8 @@ export function calcBiDijkstra(
         cns_to_follow.forEach(cnid => {
             const cn = connections.getObj(cnid);
             if (!cn) return;
-			
-			const cnweight = get(cn.weight);
+
+            const cnweight = get(cn.weight);
             let nodebid = cn.idB;
             let flipped = false;
             if (cn.idB === i) {
@@ -445,10 +445,7 @@ export function calcBiDijkstra(
                 q.push([nodebid, cnid, cost + cnweight, v_by_a]);
                 flipped_cn.set(cnid, flipped);
             } else if (!popped.has(nodebid)) {
-                if (
-                    !dist.has(nodebid) ||
-                    dist.get(nodebid) > cost + cnweight
-                ) {
+                if (!dist.has(nodebid) || dist.get(nodebid) > cost + cnweight) {
                     visited_nodes.set(nodebid, [i, cnid, -1, v_by_a]);
                     q.push([nodebid, cnid, cost + cnweight, v_by_a]);
                     flipped_cn.set(cnid, flipped);
@@ -630,7 +627,7 @@ export function calcAStar(
             const cn = connections.getObj(cnid);
 
             if (cn) {
-				const cnweight = get(cn.weight);
+                const cnweight = get(cn.weight);
                 let nodebid = cn.idB;
                 let flipped = false;
                 if (cn.idB === i) {
@@ -1688,7 +1685,7 @@ export function calcTS(startid: number, endid?: number, leave_open?: boolean) {
             const cn = connections.getObj(cnid);
             if (!cn) continue;
 
-			const cnweight = get(cn.weight);
+            const cnweight = get(cn.weight);
             let nodebid = cn.idB;
             let flipped = false;
             if (cn.idB === i) {
