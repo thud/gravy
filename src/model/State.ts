@@ -9,6 +9,7 @@ import type {
     NumReadable,
     PosSpring,
     BooleanWritable,
+    StrWritable,
     NumWritable,
     NumTweened,
 } from './Utils';
@@ -70,3 +71,9 @@ export let stop_visualising: BooleanWritable = writable(false);
 export let visual_progress: NumTweened = tweened(0, { duration: 0 });
 export let visual_progress_step_count: NumWritable = writable(1);
 export let recalculate_vis: BooleanWritable = writable(false);
+
+export let vte_show: BooleanWritable = writable(true);
+export let vte_text: StrWritable = writable('');
+export let vte_nnodes: NumWritable = writable(0);
+export let vte_textvalid: BooleanWritable = writable(false);
+export let vte_directed: BooleanWritable = writable(false);

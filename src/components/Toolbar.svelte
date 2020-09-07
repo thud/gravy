@@ -8,6 +8,7 @@
         orb_number,
         orb_speed,
         mode,
+        vte_show,
     } from '../model/State';
     import { tweened } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
@@ -542,6 +543,17 @@
     </div>
     <div class="toolbar-section">
         <div class="toolbar-section-label">Settings</div>
+        <div class="toolbar-row nohover">
+            <div
+                class="toolbar-row-element nohover toolbar-row-element-inline"
+                style="color:{$colors.nord0};background-color:{$colors.nord5};">
+                Show Text Editor
+            </div>
+            <input
+                type="checkbox"
+                style="margin:0 2.5rem;"
+                bind:checked={$vte_show} />
+        </div>
         <div class="toolbar-row nohover">
             <div
                 class="toolbar-row-element nohover toolbar-row-element-inline"

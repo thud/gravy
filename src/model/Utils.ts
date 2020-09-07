@@ -36,10 +36,14 @@ function numwritable() {
 function poswritable() {
     return writable<Pos>(undefined);
 }
+function strwritable() {
+    return writable<string>(undefined);
+}
 export type AnyArrayWritable = ReturnType<typeof anyarraywritable>;
 export type BooleanWritable = ReturnType<typeof booleanwritable>;
 export type NumWritable = ReturnType<typeof numwritable>;
 export type PosWritable = ReturnType<typeof poswritable>;
+export type StrWritable = ReturnType<typeof strwritable>;
 
 function anyderived() {
     return derived<any, any>(undefined, undefined);
