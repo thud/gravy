@@ -72,7 +72,7 @@ export let visual_progress: NumTweened = tweened(0, { duration: 0 });
 export let visual_progress_step_count: NumWritable = writable(1);
 export let recalculate_vis: BooleanWritable = writable(false);
 
-export let vte_show: BooleanWritable = writable(true);
+export let vte_show: BooleanWritable = writable(false);
 export let vte_text: StrWritable = writable('');
 export let vte_temp_nnodes: StrWritable = writable('');
 export let vte_nnodes: NumWritable = writable(0);
