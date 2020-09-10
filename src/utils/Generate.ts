@@ -35,7 +35,7 @@ export async function clearCanvas() {
     clearing_canvas.set(true);
 
     get(nodes).forEach((node: Vertex) => {
-        node.kill = true;
+        node.kill.set(true);
     });
     next_node_id.set(1);
     next_cn_id.set(1);
@@ -134,7 +134,7 @@ async function generateRandom(dir: number) {
 
             if (
                 !nodea ||
-                nodea.kill ||
+                get(nodea.kill) ||
                 performance.now() - start_time > placement_timeout
             )
                 break;
@@ -164,7 +164,7 @@ async function generateRandom(dir: number) {
                         (cn[1].idA === idA && cn[1].idB === idB) ||
                         (cn[1].idA === idB && cn[1].idB === idA)
                 ) &&
-                !nodeb.kill
+                !get(nodeb.kill)
             ) {
                 const newcn = new Connection(
                     nci,
@@ -291,7 +291,7 @@ export async function generateRandomDAG() {
             }
             if (
                 !nodea ||
-                nodea.kill ||
+                get(nodea.kill) ||
                 performance.now() - start_time > placement_timeout
             )
                 break;
@@ -325,7 +325,7 @@ export async function generateRandomDAG() {
                         (cn.idA === idA && cn.idB === idB) ||
                         (cn.idB === idA && cn.idA === idB)
                 ) &&
-                !sortedByDistance[j].kill
+                !get(sortedByDistance[j].kill)
             ) {
                 const newcn = new Connection(
                     nci,
@@ -429,8 +429,8 @@ export async function generateComplete() {
                         (cn.idA === idA && cn.idB === idB) ||
                         (cn.idB === idA && cn.idA === idB)
                 ) &&
-                !nodea.kill &&
-                !nodeb.kill
+                !get(nodea.kill) &&
+                !get(nodeb.kill)
             ) {
                 const newcn = new Connection(
                     nci,
@@ -501,7 +501,7 @@ export async function generateBinaryTree() {
     await waitForDoneMovingIfMoving();
 
     for (let i = 1; i < count; i++) {
-        if (clearing || !root || root.kill) {
+        if (clearing || !root || get(root.kill)) {
             unsubscribenni();
             unsubscribenci();
             unsubscribeclearingcanvas();
@@ -615,7 +615,7 @@ export async function generateBinaryTree() {
         await sleepPromise(node_delay);
         await waitForDoneMovingIfMoving();
 
-        if (clearing || !root || root.kill) {
+        if (clearing || !root || get(root.kill)) {
             unsubscribenni();
             unsubscribenci();
             unsubscribeclearingcanvas();
@@ -627,7 +627,7 @@ export async function generateBinaryTree() {
             idB = addingid;
         const nodea = nodes.getObj(idA);
         const nodeb = nodes.getObj(idB);
-        if (!nodea || !nodeb || nodea.kill || nodeb.kill) continue;
+        if (!nodea || !nodeb || get(nodea.kill) || get(nodeb.kill)) continue;
         if (
             ![...connections.getAll()].some(
                 ([_cnid, cn]) =>
@@ -716,7 +716,7 @@ async function generateRandomTree(dir: number) {
         if (c_nodedepth > 5) continue;
 
         const c_node = nodes.getObj(c_nodeid);
-        if (!c_node || c_node.kill) continue;
+        if (!c_node || get(c_node.kill)) continue;
         let cnp: Pos = { x: 0, y: 0 };
         const unsubscribecnodepos = c_node.posSpringA.subscribe(
             (val: Pos) => (cnp = val)
@@ -774,7 +774,8 @@ async function generateRandomTree(dir: number) {
 
             const idA = c_nodeid,
                 idB = c_childid;
-            if (!c_node || c_node.kill || !c_child || c_child.kill) continue;
+            if (!c_node || get(c_node.kill) || !c_child || get(c_child.kill))
+                continue;
             if (
                 ![...connections.getAll()].some(
                     ([_cnid, cn]) =>

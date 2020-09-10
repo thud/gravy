@@ -8,14 +8,19 @@ import {
     next_node_id,
     next_cn_id,
     recalculate_vis,
+	last_generated,
+	visualising,
     visual_progress,
     moving_canvas,
     clearing_canvas,
     default_cn_weight,
     vte_text,
+    vte_temp_nnodes,
     vte_nnodes,
     vte_directed,
     vte_textvalid,
+    vte_livemode,
+    vte_outdated,
     canvas_offsets,
     zoom,
 } from '../model/State';
@@ -78,7 +83,7 @@ export function sleepPromise(t: number) {
 export function waitForEmpty() {
     return new Promise((resolve, reject) => {
         (function check() {
-            if (get(nodes).size === 0) return resolve();
+            if (nodes.size === 0 && connections.size === 0) return resolve();
             setTimeout(check, 100);
         })();
     });
@@ -181,10 +186,11 @@ export function delConnection(id: number) {
     recalculate_vis.set(true);
 }
 
-export function getCurrentVTE() {
+export function getCurrentVTE(update_text = false) {
     let maxnid = 0;
     let new_text = '';
-    let directed = false;
+    let directed = get(vte_directed);
+    const defw = get(default_cn_weight);
     [...nodes.keys()].forEach(nid => {
         maxnid = Math.max(maxnid, nid);
     });
@@ -192,90 +198,73 @@ export function getCurrentVTE() {
         const nodea = nodes.getObj(cn.idA);
         const nodeb = nodes.getObj(cn.idB);
         if (!nodea || !nodeb) return;
-
-        if (cn.directionCounter > 0) directed = true;
+        const cdir = get(cn.directionCounter);
 
         const cnweightstr = get(cn.weight).toString();
 
-        switch (cn.directionCounter) {
+        switch ((cdir + 2) % 3) {
             case 0:
-                new_text +=
-                    cn.idA.toString() +
-                    ' ' +
-                    cn.idB.toString() +
-                    ' ' +
-                    cnweightstr +
-                    '\n';
-                new_text +=
-                    cn.idB.toString() +
-                    ' ' +
-                    cn.idA.toString() +
-                    ' ' +
-                    cnweightstr +
-                    '\n';
+                new_text += cn.idA.toString() + ' ' + cn.idB.toString();
+                if (directed)
+                    new_text +=
+                        '\n' + cn.idB.toString() + ' ' + cn.idA.toString();
                 break;
             case 1:
-                new_text +=
-                    cn.idA.toString() +
-                    ' ' +
-                    cn.idB.toString() +
-                    ' ' +
-                    cnweightstr +
-                    '\n';
+                new_text += cn.idA.toString() + ' ' + cn.idB.toString();
                 break;
             case 2:
-                new_text +=
-                    cn.idB.toString() +
-                    ' ' +
-                    cn.idA.toString() +
-                    ' ' +
-                    cnweightstr +
-                    '\n';
+                new_text += cn.idB.toString() + ' ' + cn.idA.toString();
                 break;
         }
+        if (get(cn.weight) != defw) new_text += ' ' + cnweightstr;
+        new_text += '\n';
     });
-    vte_text.set(new_text);
-    vte_nnodes.set(maxnid);
-    vte_directed.set(directed);
-    vte_textvalid.set(true);
+    if (new_text.length > 0)
+        new_text = new_text.substring(0, new_text.length - 1);
+    if (update_text || get(vte_livemode)) {
+        vte_outdated.set(false);
+        vte_text.set(new_text);
+        vte_temp_nnodes.set(maxnid.toString());
+        vte_nnodes.set(maxnid);
+        vte_directed.set(directed);
+        vte_textvalid.set(true);
+    } else {
+        vte_outdated.set(new_text != get(vte_text));
+    }
 }
 
 export async function applyVTE() {
     if (get(clearing_canvas)) await waitForEmpty();
 
     const nodes_to_add: Set<number> = new Set();
-    const nearby_nodes: Map<number, number[]> = new Map();
+    const nearby_nodes: Map<number, Set<number>> = new Map();
     const nodes_to_delete: Set<number> = new Set();
-    const connections_to_add: Map<[number, number], number> = new Map();
-    const connections_to_delete: Set<number> = new Set();
-    const dcns: Map<number, Map<number, number>> = new Map();
+    const connections_to_add: Map<
+        number,
+        Map<number, [number, boolean, boolean]>
+    > = new Map(); // M<u, M<v, [w, d, wspecified]>>
     const nnodes = get(vte_nnodes);
     const txt = get(vte_text);
+    const directed = get(vte_directed);
     const defw = get(default_cn_weight);
 
-    [...nodes.getAll()].forEach(([nid, node]) => {
-        if (nid <= 0 || nid > nnodes) {
-            nodes_to_delete.add(nid);
-            node.direct_cn.forEach((cnid: number) =>
-                connections_to_delete.add(cnid)
-            );
-            node.indirect_cn.forEach((cnid: number) =>
-                connections_to_delete.add(cnid)
-            );
-        }
-    });
+    for (let i = 1; i <= nnodes; i++) {
+        nearby_nodes.set(i, new Set());
+        if (!nodes.has(i)) nodes_to_add.add(i);
+    }
 
-    nodes_to_delete.forEach(nid => {
-        delVertex(nid);
+    [...nodes.getAll()].forEach(([nid, node]) => {
+        if (nid <= 0 || nid > nnodes) nodes_to_delete.add(nid);
     });
 
     const news = txt.trim();
     for (let u_v of news.split('\n')) {
         const u_v_split = u_v.trim().split(' ');
+        if (!u_v_split[0]) continue;
 
         let us: string, vs: string, ws: string;
         let w = defw;
-        if (u_v_split.length == 2) [us, vs] = u_v_split;
+        if (u_v_split.length === 2) [us, vs] = u_v_split;
         else {
             [us, vs, ws] = u_v_split;
             w = parseFloat(ws);
@@ -284,51 +273,39 @@ export async function applyVTE() {
         const u = parseInt(us);
         const v = parseInt(vs);
 
-        if (!dcns.has(u)) dcns.set(u, new Map());
-        dcns.get(u).set(v, w);
-    }
-
-    for (let i = 1; i <= nnodes; i++) {
-        const nodea = nodes.getObj(i);
-        if (nodea) {
-            if (dcns.has(i)) {
-                nodea.direct_cn.forEach(cnid => {
-                    const cn = connections.getObj(cnid);
-                    if (!cn) return;
-                    const cv = cn.idA === i ? cn.idB : cn.idA;
-                    console.log('i=', i, ' cv=', cv);
-                    if (!dcns.get(i).has(cv)) {
-                        connections_to_delete.add(cnid);
-                        dcns.get(i).delete(cv);
-                    } else if (dcns.get(i).get(cv) != get(cn.weight)) {
-                        cn.weight.set(dcns.get(i).get(cv));
-                    }
-                });
-                console.log(dcns.get(i));
-                dcns.get(i).forEach((w, cv) => {
-                    console.log('here ', [i, cv]);
-                    connections_to_add.set([i, cv], w);
-                    if (!nearby_nodes.has(i)) nearby_nodes.set(i, []);
-                    if (!nearby_nodes.has(cv)) nearby_nodes.set(cv, []);
-                    nearby_nodes.get(i).push(cv);
-                    nearby_nodes.get(cv).push(i);
-                });
+        nearby_nodes.get(u).add(v);
+        nearby_nodes.get(v).add(u);
+        if (directed) {
+            if (connections_to_add.has(u) && connections_to_add.get(u).has(v)) {
+                const vals = connections_to_add.get(u).get(v);
+                if (Boolean(ws) && !vals[2]) {
+                    vals[2] = true;
+                    vals[0] = w;
+                }
+                continue;
+            }
+            if (connections_to_add.get(v) && connections_to_add.get(v).has(u)) {
+                const vals = connections_to_add.get(v).get(u);
+                vals[1] = true;
+                if (Boolean(ws) && !vals[2]) {
+                    vals[2] = true;
+                    vals[0] = w;
+                }
             } else {
-                nodea.direct_cn.forEach(cnid => {
-                    connections_to_delete.add(cnid);
-                });
+                if (!connections_to_add.has(u))
+                    connections_to_add.set(u, new Map());
+                connections_to_add.get(u).set(v, [w, false, Boolean(ws)]);
             }
         } else {
-            nodes_to_add.add(i);
-            if (!nearby_nodes.has(i)) nearby_nodes.set(i, []);
-            if (!dcns.has(i)) dcns.set(i, new Map());
-            console.log(dcns.get(i));
-            dcns.get(i).forEach((nid, w) => {
-                if (!nearby_nodes.has(nid)) nearby_nodes.set(nid, []);
-                nearby_nodes.get(i).push(nid);
-                nearby_nodes.get(nid).push(i);
-                connections_to_add.set([i, nid], w);
-            });
+            if (
+                (connections_to_add.has(u) &&
+                    connections_to_add.get(u).has(v)) ||
+                (connections_to_add.has(v) && connections_to_add.get(v).has(u))
+            )
+                continue;
+            if (!connections_to_add.has(u))
+                connections_to_add.set(u, new Map());
+            connections_to_add.get(u).set(v, [w, true, Boolean(ws)]);
         }
     }
 
@@ -337,18 +314,21 @@ export async function applyVTE() {
     nodes_to_add.forEach(nid => {
         let x = 0,
             y = 0;
-        if (nearby_nodes.has(nid)) {
-            let nni = 0;
+        if (
+            nearby_nodes.get(nid).size &&
+            ![...nearby_nodes.get(nid)].every(nid => !nodes.has(nid))
+        ) {
             const bounds = getUsableBounds();
-            if (nodes.has(nni)) return;
+            if (nodes.has(nid)) return;
 
             const minradius = 90;
-            const minnearbyradius = 250;
+            const maxnearbyradius = 250;
 
             let x: number, y: number;
             let attempts = 0;
-            const nearby = [...nodes.getAll()].filter(([nid, _node]) =>
-                nearby_nodes.has(nid)
+            const all = [...nodes.getAll()];
+            const nearby = all.filter(([bid, _node]) =>
+                nearby_nodes.get(nid).has(bid)
             );
             do {
                 x =
@@ -359,16 +339,16 @@ export async function applyVTE() {
                     Math.random() * (bounds[1][1] - bounds[1][0]);
                 attempts++;
             } while (
-                nearby.every(
+                (nearby.every(
                     ([_id, node]) =>
                         getDistance(get(node.posSpringA), { x, y }) >
-                        minnearbyradius
-                ) &&
-                [...nodes.getAll()].some(
+                        maxnearbyradius
+                ) ||
+                all.some(
                     ([_id, node]) =>
                         getDistance(get(node.posSpringA), { x, y }) < minradius
-                ) &&
-                attempts < 40
+                )) &&
+                attempts < 30
             );
 
             const newVertex = new Vertex(
@@ -380,18 +360,14 @@ export async function applyVTE() {
             );
             nodes.setObj(nid, newVertex);
         } else {
-            let nni = 0;
-            next_node_id.update(val => {
-                nni = val;
-                return val + 1;
-            });
             const bounds = getUsableBounds();
-            if (nodes.has(nni)) return;
+            if (nodes.has(nid)) return;
 
             const minradius = 90;
 
             let x: number, y: number;
             let attempts = 0;
+            const all = [...nodes.getAll()];
             do {
                 x =
                     bounds[0][0] +
@@ -401,7 +377,7 @@ export async function applyVTE() {
                     Math.random() * (bounds[1][1] - bounds[1][0]);
                 attempts++;
             } while (
-                [...nodes.getAll()].some(
+                all.some(
                     ([_id, node]) =>
                         getDistance(get(node.posSpringA), { x, y }) < minradius
                 ) &&
@@ -409,49 +385,76 @@ export async function applyVTE() {
             );
 
             const newVertex = new Vertex(
-                nni,
+                nid,
                 spring({ x, y }),
                 spring({ x, y }),
                 spring(0),
                 spring(0)
             );
-            nodes.setObj(nni, newVertex);
+            addVertex(newVertex);
         }
     });
 
     let nci = -1;
     const unsubscribenci = next_cn_id.subscribe((val: number) => (nci = val));
 
-    console.log('connections_to_add=', connections_to_add);
-
-    connections_to_add.forEach((w, [idA, idB]) => {
-        if (
-            ![...connections.getAll()].some(
-                ([_cnid, cn]) =>
-                    (cn.idA === idA && cn.idB === idB) ||
-                    (cn.idA === idB && cn.idB === idA)
-            )
-        ) {
-            let cn_direction = 0;
-            if (connections_to_add.has([idB, idA])) cn_direction = -1;
-            const newcn = new Connection(nci, idA, idB, w, cn_direction);
-            console.log(newcn.directionCounter);
-            console.log('newcn = ', newcn);
-            connections.setObj(nci, newcn);
-            next_cn_id.update((val: number) => val + 1);
-            console.log([...connections.getAll()].slice());
-        }
-    });
-
-    connections_to_delete.forEach(cnid => {
-        const cn = connections.getObj(cnid);
-        console.log('killing cn=', cnid);
-        if (cn) cn.kill = true;
-    });
-    nodes_to_delete.forEach(nid => {
-        const n = nodes.getObj(nid);
-        if (n) n.kill = true;
+    const cns_dont_delete: Set<number> = new Set();
+    const cns = [...connections.getAll()];
+    connections_to_add.forEach((nodebids, nodeaid) => {
+        nodebids.forEach(([w, d, _wspecified], nodebid) => {
+            if (
+                cns.some(
+                    ([_cnid, cn]) => cn.idA === nodeaid && cn.idB === nodebid
+                )
+            ) {
+                const [cnid, cn] = cns.find(
+                    ([_cnid, cn]) => cn.idA === nodeaid && cn.idB === nodebid
+                );
+                cns_dont_delete.add(cnid);
+                if (d) cn.directionCounter.set(0);
+                else cn.directionCounter.set(1);
+                cn.settingDirection.set(true);
+                cn.weight.set(w);
+            } else if (
+                cns.some(
+                    ([_cnid, cn]) => cn.idA === nodebid && cn.idB === nodeaid
+                )
+            ) {
+                const [cnid, cn] = cns.find(
+                    ([_cnid, cn]) => cn.idA === nodebid && cn.idB === nodeaid
+                );
+                cns_dont_delete.add(cnid);
+                if (d) cn.directionCounter.set(0);
+                else cn.directionCounter.set(1);
+                cn.settingDirection.set(true);
+                cn.weight.set(w);
+            } else {
+                let cn_direction = 1;
+                if (d) cn_direction = 0;
+                const newcn = new Connection(
+                    nci,
+                    nodeaid,
+                    nodebid,
+                    w,
+                    cn_direction
+                );
+                addConnection(newcn);
+                cns_dont_delete.add(nci);
+                next_cn_id.update((val: number) => val + 1);
+            }
+        });
     });
 
     unsubscribenci();
+
+    [...connections.getAll()]
+        .filter(([cnid, _cn]) => !cns_dont_delete.has(cnid))
+        .forEach(([_cnid, cn]) => {
+            cn.kill.set(true);
+        });
+    nodes_to_delete.forEach(nid => {
+        const n = nodes.getObj(nid);
+        if (n) n.kill.set(true);
+    });
+    vte_outdated.set(false);
 }

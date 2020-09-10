@@ -1,6 +1,11 @@
 import { writable, derived } from 'svelte/store';
 import { spring } from 'svelte/motion';
-import type { AnyArrayWritable, PosSpring, NumSpring } from './Utils';
+import type {
+    AnyArrayWritable,
+    BooleanWritable,
+    PosSpring,
+    NumSpring,
+} from './Utils';
 
 export default class Vertex {
     id: number;
@@ -11,7 +16,7 @@ export default class Vertex {
     top_rank: number;
     direct_cn: Set<number>;
     indirect_cn: Set<number>;
-    kill: boolean;
+    kill: BooleanWritable;
     animationEvents: AnyArrayWritable;
 
     constructor(
@@ -32,7 +37,7 @@ export default class Vertex {
         this.sizeSpringB = sizeSpringB;
         this.direct_cn = direct_cn;
         this.indirect_cn = indirect_cn;
-        this.kill = false;
+        this.kill = writable(false);
         this.top_rank = top_rank;
 
         this.animationEvents = writable([]);

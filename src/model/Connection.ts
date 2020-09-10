@@ -14,11 +14,11 @@ export default class Connection {
     idA: number;
     idB: number;
     weight: NumWritable;
-    directionCounter: number;
+    directionCounter: NumWritable;
     lengthTween: NumTweened;
-    kill: boolean;
+    kill: BooleanWritable;
     centerPos: PosDerived;
-    settingDirection: boolean;
+    settingDirection: BooleanWritable;
     animationEvents: AnyArrayWritable;
     progressFlipped: BooleanWritable;
 
@@ -38,10 +38,10 @@ export default class Connection {
         this.idB = idB;
         this.lengthTween = lengthTween;
         this.weight = writable(weight);
-        this.kill = false;
+        this.kill = writable(false);
         this.centerPos = null;
-        this.settingDirection = true;
-        this.directionCounter = directionCounter;
+        this.settingDirection = writable(true);
+        this.directionCounter = writable(directionCounter);
 
         this.animationEvents = writable([]);
         this.progressFlipped = writable(false);

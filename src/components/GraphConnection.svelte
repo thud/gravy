@@ -28,6 +28,9 @@
     let cweight = c.weight;
     let lengthTween = c.lengthTween;
     let opacityTween = tweened(1, { easing: expoInOut, duration: 500 });
+    let cdir = c.directionCounter;
+    let ckill = c.kill;
+    let csetdir = c.settingDirection;
     let nodeA: Vertex,
         nodeB: Vertex,
         nodeAPos: PosDerived,
@@ -103,11 +106,11 @@
 
         lengthTween.set(1, {});
     } else {
-        c.kill = true;
+        $ckill = true;
     }
 
     let alreadykilling = false;
-    $: if (c && c.kill && !alreadykilling) {
+    $: if (c && $ckill && !alreadykilling) {
         lengthTween.set(0, {});
         opacityTween.set(0, {});
         if ($nodes.has(c.idA)) {
@@ -121,20 +124,20 @@
         alreadykilling = true;
     }
 
-    $: if ($lengthTween <= 0 && c.kill) {
+    $: if ($lengthTween <= 0 && $ckill) {
         delConnection(c.id);
     }
 
     function handleMousedown() {
         switch ($mode) {
             case 3: // delete edge
-                c.kill = true;
+                $ckill = true;
                 break;
             case 4: // edit edge weights
                 $selected_cn_weight = c.id;
                 break;
             case 5: // edit edge directions
-                c.settingDirection = true;
+                $csetdir = true;
                 break;
         }
     }
@@ -193,12 +196,12 @@
 
     let getD = undirected;
 
-    $: if (c.settingDirection && !c.kill) {
+    $: if ($csetdir && !$ckill) {
         nodeA.direct_cn.delete(c.id);
         nodeA.indirect_cn.delete(c.id);
         nodeB.direct_cn.delete(c.id);
         nodeB.indirect_cn.delete(c.id);
-        switch (c.directionCounter) {
+        switch ($cdir) {
             case 0:
                 nodeA.direct_cn.add(c.id);
                 nodeB.direct_cn.add(c.id);
@@ -216,11 +219,14 @@
                 nodeB.direct_cn.add(c.id);
                 getD = directedB;
                 break;
+            default:
+                console.warn('DEFAULT ON SWITCH IN CN setdir');
+                break;
         }
 
-        c.settingDirection = false;
-        c.directionCounter++;
-        c.directionCounter %= 3;
+        $csetdir = false;
+        $cdir++;
+        $cdir %= 3;
         recalculate_vis.set(true);
     }
 
@@ -311,7 +317,7 @@
     opacity={$opacityTween}
     style="stroke:{$progressColour}; stroke-width:{15 * $zoom}; {$mode === 3 || $mode === 5 ? 'cursor: pointer' : ''}" />
 
-{#if $show_cn_directions && !c.kill}
+{#if $show_cn_directions && !$ckill}
     {#each orbs as orb (orb)}
         <circle
             on:mousedown={handleMousedown}
@@ -324,7 +330,7 @@
     {/each}
 {/if}
 
-{#if $show_cn_weights && !c.kill}
+{#if $show_cn_weights && !$ckill}
     <text
         on:mousedown={handleMousedown}
         transition:fade={{ duration: 200, delay: 0, easing: cubicInOut }}

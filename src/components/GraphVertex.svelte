@@ -31,6 +31,7 @@
     let posSpringB = n.posSpringB;
     let sizeSpringA = n.sizeSpringA;
     let sizeSpringB = n.sizeSpringB;
+    let nkill = n.kill;
     const animationState = derived(
         [visual_progress, n.animationEvents],
         ([vp, ae]) => {
@@ -50,13 +51,13 @@
         }
     );
 
-    $: if (!n.kill && $selected_node != n.id) {
+    $: if (!$nkill && $selected_node != n.id) {
         n.posSpringA.stiffness = 0.1;
         n.posSpringB.stiffness = 0.05;
         n.posSpringB.damping = 0.1;
         sizeSpringA.set(sizes[0]);
         sizeSpringB.set(sizes[1]);
-    } else if (!n.kill) {
+    } else if (!$nkill) {
         n.posSpringA.stiffness = 0.3;
         n.posSpringB.stiffness = 0.02;
         sizeSpringA.set(sizes[0] * 1.3);
@@ -65,24 +66,24 @@
 
     function killConnections() {
         n.direct_cn.forEach(cnid => {
-            if ($connections.has(cnid)) $connections.get(cnid).kill = true;
+            if ($connections.has(cnid)) $connections.get(cnid).kill.set(true);
         });
         n.indirect_cn.forEach(cnid => {
-            if ($connections.has(cnid)) $connections.get(cnid).kill = true;
+            if ($connections.has(cnid)) $connections.get(cnid).kill.set(true);
         });
         n.direct_cn.clear();
         n.indirect_cn.clear();
     }
 
     let alreadykilling = false;
-    $: if (n.kill && !alreadykilling) {
+    $: if ($nkill && !alreadykilling) {
         sizeSpringA.set(0);
         sizeSpringB.set(0);
         killConnections();
         alreadykilling = true;
     }
 
-    $: if (n.kill && $sizeSpringA <= 0 && $sizeSpringB <= 0) {
+    $: if ($nkill && $sizeSpringA <= 0 && $sizeSpringB <= 0) {
         killConnections(); // Extra safety
         delVertex(n.id);
     }
@@ -141,7 +142,7 @@
                 }
                 break;
             case 2: // delete node
-                n.kill = true;
+                $nkill = true;
                 break;
             case 3:
                 killConnections();
@@ -292,7 +293,7 @@
     cy={$pb.y}
     r={$ssb} />
 
-{#if $show_node_labels && !n.kill}
+{#if $show_node_labels && !$nkill}
     <text
         on:mousedown={handleMousedown}
         transition:fade={{ duration: 150, easing: cubicInOut, delay: 0 }}

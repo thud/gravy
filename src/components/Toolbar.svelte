@@ -1,6 +1,7 @@
 <script lang="ts">
     import {
         colors,
+        connections,
         toolbar_visible,
         show_cn_weights,
         show_cn_directions,
@@ -562,7 +563,7 @@
             </div>
             <input
                 class="toolbar-settings-input"
-                style="color:{$colors.nord0};background-color:{valid_default_cn_weight ? $colors.nord5 : $colors.nord13};
+                style="color:{$colors.nord0};background-color:{valid_default_cn_weight ? $colors.nord6 : $colors.nord13};
                 width: 4.4rem; flex: 0;"
                 bind:value={default_cn_weight_temp} />
         </div>
@@ -601,6 +602,30 @@
                     $show_cn_directions = true;
                 }}
                 bind:value={$orb_speed} />
+        </div>
+        <div class="toolbar-row">
+            <button
+                class="toolbar-settings-input"
+                style="width:100%;margin-top:.5rem;cursor:pointer;color:{$colors.nord0};background-color:{$colors.nord6};"
+                on:click={_ => {
+                    [...connections.getAll()].forEach(([_cnid, cn]) => {
+                        cn.weight.set(Math.floor(Math.random() * 9) + 1);
+                    });
+                }}>
+                Randomise All Edge Weights
+            </button>
+        </div>
+        <div class="toolbar-row">
+            <button
+                class="toolbar-settings-input"
+                style="width:100%;margin-top:.25rem;cursor:pointer;color:{$colors.nord0};background-color:{$colors.nord6};"
+                on:click={_ => {
+                    [...connections.getAll()].forEach(([_cnid, cn]) => {
+                        cn.weight.set($default_cn_weight);
+                    });
+                }}>
+                Reset All Edge Weights
+            </button>
         </div>
     </div>
 </div>

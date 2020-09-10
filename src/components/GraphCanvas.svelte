@@ -47,7 +47,6 @@
         rc2c,
         playVisualisation,
         resetAnimations,
-        getCurrentVTE,
     } from '../utils/Utils';
 
     const nodecreatedeadzoneradius = 40;
@@ -274,9 +273,6 @@
             unsubscribeprevalgo = () => {};
         }
     });
-
-    nodes.subscribe(getCurrentVTE);
-    connections.subscribe(getCurrentVTE);
 
     // start with a random graph;
     generateRandomUndirected();

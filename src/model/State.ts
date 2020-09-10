@@ -74,6 +74,9 @@ export let recalculate_vis: BooleanWritable = writable(false);
 
 export let vte_show: BooleanWritable = writable(true);
 export let vte_text: StrWritable = writable('');
+export let vte_temp_nnodes: StrWritable = writable('');
 export let vte_nnodes: NumWritable = writable(0);
 export let vte_textvalid: BooleanWritable = writable(false);
 export let vte_directed: BooleanWritable = writable(false);
+export let vte_livemode: BooleanWritable = writable(false);
+export let vte_outdated: BooleanWritable = writable(false);
