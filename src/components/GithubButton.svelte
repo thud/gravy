@@ -25,10 +25,10 @@
     svg:hover {
         fill: #e5e9f0;
     }
+
 </style>
 
 <a href="https://github.com/thud/gravy">
-
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <title>GitHub Repo</title>
         <path
@@ -46,5 +46,4 @@
             .315.21.69.825.57C20.565 22.092 24 17.592 24
             12.297c0-6.627-5.373-12-12-12" />
     </svg>
-
 </a>

@@ -32,6 +32,7 @@
     let tip: string = 'Loading...',
         imgs: [string, string][] = [];
     $: [tip, ...imgs] = tips[stage];
+
 </script>
 
 <style>
@@ -113,6 +114,7 @@
         justify-content: space-between;
         align-content: flex-end;
     }
+
 </style>
 
 {#if $tutorial_open}

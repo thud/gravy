@@ -16,12 +16,12 @@
         colors,
     } from '../model/State';
     import { getCurrentVTE, applyVTE } from '../utils/Utils';
-	import { clearCanvas } from "../utils/Generate";
+    import { clearCanvas } from '../utils/Generate';
 
     $vte_temp_nnodes = $vte_nnodes.toString();
     let isvalid_nnodes_input = true;
-	let keepTextWhileClearing = false;
-	let regenQueued = false;
+    let keepTextWhileClearing = false;
+    let regenQueued = false;
 
     function parseValid() {
         const valid_nnodes = parseInt($vte_temp_nnodes);
@@ -75,17 +75,17 @@
         return true;
     }
 
-	export async function retryGenerateVTE() {
-		if (regenQueued) return;
-		console.log("regenerating");
-		regenQueued = true;
-		keepTextWhileClearing = true;
-		await clearCanvas();
-		keepTextWhileClearing = false;
-		applyVTE();
-		await new Promise(resolve => setTimeout(resolve, 500));
-		regenQueued = false;
-	}
+    export async function retryGenerateVTE() {
+        if (regenQueued) return;
+        console.log('regenerating');
+        regenQueued = true;
+        keepTextWhileClearing = true;
+        await clearCanvas();
+        keepTextWhileClearing = false;
+        applyVTE();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        regenQueued = false;
+    }
 
     $: if ($vte_show) getCurrentVTE(true);
 
@@ -104,6 +104,7 @@
     vte_directed.subscribe(_ => {
         parseValid();
     });
+
 </script>
 
 <style>
@@ -148,7 +149,8 @@
 		font-size: 0.6rem;
 	}*/
 
-    .vte-getcurrent button,.vte-regenerate button {
+    .vte-getcurrent button,
+    .vte-regenerate button {
         font-size: 0.8rem;
         font-weight: 600;
         width: 100%;
@@ -186,6 +188,7 @@
         border: none;
         transition: background-color 0.3s ease-in-out;
     }
+
 </style>
 
 {#if $vte_show}

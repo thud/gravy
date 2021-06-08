@@ -251,6 +251,7 @@
         [zoom, sizeSpringB],
         ([zm, ssb]) => zm * Math.max(0, ssb)
     );
+
 </script>
 
 <style>
@@ -273,6 +274,7 @@
         -o-user-select: none;
         user-select: none;
     }
+
 </style>
 
 <circle

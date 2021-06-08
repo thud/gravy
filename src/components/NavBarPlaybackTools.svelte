@@ -12,6 +12,7 @@
     const heightTween = tweened(0, { duration: 400, easing: cubicInOut });
 
     visualising.subscribe(vis => heightTween.set(vis ? 1 : 0, undefined));
+
 </script>
 
 <style>
@@ -40,6 +41,7 @@
     #play {
         width: 0.6rem;
     }
+
 </style>
 
 <div

@@ -17,6 +17,7 @@
     } else {
         valid_new_weight = false;
     }
+
 </script>
 
 <style>
@@ -38,6 +39,7 @@
         outline: none;
         border-radius: 5%/12.5%;
     }
+
 </style>
 
 {#if centerPos !== null}

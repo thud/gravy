@@ -58,6 +58,7 @@
     } else {
         valid_default_cn_weight = false;
     }
+
 </script>
 
 <style>
@@ -165,6 +166,7 @@
         outline: none;
         border-radius: 0.25rem;
     }
+
 </style>
 
 <div
@@ -172,7 +174,6 @@
     style="background-color:{$colors.nord5}; height:calc(3.75rem + {$heightTween}%);
     overflow:{$toolbar_visible ? 'scroll' : 'hidden'}"
     class="toolbar-container">
-
     <div
         class="toolbar-label"
         on:click={onClickToggleToolbar}

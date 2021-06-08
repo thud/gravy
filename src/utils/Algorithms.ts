@@ -1514,10 +1514,8 @@ export function calcHamiltonian(
     leave_open?: boolean
 ) {
     const visited_nodes: Map<number, [boolean, number][]> = new Map();
-    const visited_cns: Map<
-        number,
-        [boolean, boolean, number, number][]
-    > = new Map();
+    const visited_cns: Map<number, [boolean, boolean, number, number][]> =
+        new Map();
     const node_part_of_final_path: Set<number> = new Set();
     const cn_part_of_final_path: Set<number> = new Set();
     let time_counter = 0;
@@ -1656,10 +1654,8 @@ export function calcHamiltonian(
 
 export function calcTS(startid: number, endid?: number, leave_open?: boolean) {
     const visited_nodes: Map<number, [boolean, number][]> = new Map();
-    const visited_cns: Map<
-        number,
-        [boolean, boolean, number, number][]
-    > = new Map();
+    const visited_cns: Map<number, [boolean, boolean, number, number][]> =
+        new Map();
     const node_part_of_path: Set<number> = new Set();
     const cn_part_of_path: Set<number> = new Set();
     let node_part_of_best_path: Set<number> = new Set();

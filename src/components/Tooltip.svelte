@@ -66,9 +66,8 @@
     ];
 
     $: if ($last_generated !== -1) {
-        [gen_title, gen_desc, gen_link, gen_link_url] = gen_texts[
-            $last_generated
-        ];
+        [gen_title, gen_desc, gen_link, gen_link_url] =
+            gen_texts[$last_generated];
     } else {
         [gen_title, gen_desc, gen_link, gen_link_url] = [
             gen_title,
@@ -153,9 +152,8 @@
     ];
 
     $: if ($algo_to_visualise !== -1) {
-        [algo_title, algo_desc, algo_link, algo_link_url] = algo_texts[
-            $algo_to_visualise
-        ];
+        [algo_title, algo_desc, algo_link, algo_link_url] =
+            algo_texts[$algo_to_visualise];
     } else {
         [algo_title, algo_desc, algo_link, algo_link_url] = [
             algo_title,
@@ -164,6 +162,7 @@
             algo_link_url,
         ].fill('');
     }
+
 </script>
 
 <style>
@@ -201,6 +200,7 @@
         text-decoration: underline;
         font-weight: 600;
     }
+
 </style>
 
 <div class="tooltip-container">

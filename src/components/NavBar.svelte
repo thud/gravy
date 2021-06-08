@@ -37,6 +37,7 @@
     function algoMouseleave() {
         hover_algo_dropdown = false;
     }
+
 </script>
 
 <style>
@@ -162,6 +163,7 @@
         background-color: #aaaa !important;
         color: #aaa !important;
     }
+
 </style>
 
 <NavBarPlaybackTools />
@@ -203,7 +205,6 @@
                         010-1.414z"
                         clip-rule="evenodd" />
                 </svg>
-
             </a>
         </li>
         <li>

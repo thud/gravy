@@ -276,6 +276,7 @@
 
     // start with a random graph;
     generateRandomUndirected();
+
 </script>
 
 <style>
@@ -284,6 +285,7 @@
         width: 100%;
         height: 100%;
     }
+
 </style>
 
 {#if $mode === 4}

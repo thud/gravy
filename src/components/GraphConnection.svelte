@@ -263,6 +263,7 @@
     let centerPos = c.centerPos;
 
     $: orbs = Array.from(Array($orb_number).keys());
+
 </script>
 
 <style>
@@ -282,6 +283,7 @@
     .processingLine {
         transition: stroke 0.5s ease;
     }
+
 </style>
 
 <mask id="textMask{c.id}">

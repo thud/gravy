@@ -8,8 +8,8 @@ import {
     next_node_id,
     next_cn_id,
     recalculate_vis,
-	last_generated,
-	visualising,
+    last_generated,
+    visualising,
     visual_progress,
     moving_canvas,
     clearing_canvas,
@@ -344,10 +344,11 @@ export async function applyVTE() {
                         getDistance(get(node.posSpringA), { x, y }) >
                         maxnearbyradius
                 ) ||
-                all.some(
-                    ([_id, node]) =>
-                        getDistance(get(node.posSpringA), { x, y }) < minradius
-                )) &&
+                    all.some(
+                        ([_id, node]) =>
+                            getDistance(get(node.posSpringA), { x, y }) <
+                            minradius
+                    )) &&
                 attempts < 30
             );
 

@@ -6,6 +6,7 @@
     import VertexTextEditor from './components/VertexTextEditor.svelte';
     import Tooltip from './components/Tooltip.svelte';
     import Tutorial from './components/Tutorial.svelte';
+
 </script>
 
 <style>
@@ -16,6 +17,7 @@
         width: 100vw;
         height: 100vh;
     }
+
 </style>
 
 <main>
