@@ -5,7 +5,6 @@
     export let c: Connection;
     const cweight = c.weight;
     $: centerPos = c.centerPos;
-    let input_field: any;
     let new_weight_temp = $cweight.toString();
 
     let valid_new_weight = true;
@@ -50,7 +49,6 @@
             style="background-color: {valid_new_weight ? $colors.nord5 : $colors.nord13};
             width: {4.4 * $zoom}rem; height: {1.8 * $zoom}rem; padding: {0.25 * $zoom}rem
             {0.06 * $zoom}rem; font-size: {$zoom}rem"
-            bind:value={new_weight_temp}
-            bind:this={input_field} />
+            bind:value={new_weight_temp} />
     </div>
 {/if}

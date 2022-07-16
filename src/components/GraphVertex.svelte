@@ -100,7 +100,7 @@
                 window.addEventListener('mouseup', handleMouseup);
                 if ($algo_to_visualise === 4)
                     // only need to recalc every second for A* (node position dependent)
-                    intervalID = setInterval(recalculate_vis.set, 1000, true);
+                    intervalID = window.setInterval(recalculate_vis.set, 1000, true);
                 break;
             case 1: // create edge
                 let alreadyCreated = false;

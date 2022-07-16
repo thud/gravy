@@ -77,11 +77,11 @@ export function randomShuffle(arr: any[]) {
 }
 
 export function sleepPromise(t: number) {
-    return new Promise(_ => setTimeout(_, t));
+    return new Promise<void>(_ => setTimeout(_, t));
 }
 
 export function waitForEmpty() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         (function check() {
             if (nodes.size === 0 && connections.size === 0) return resolve();
             setTimeout(check, 100);
@@ -90,7 +90,7 @@ export function waitForEmpty() {
 }
 
 export function waitForDoneMovingIfMoving() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         let moving = false;
         const unsubscribemc = moving_canvas.subscribe(val => (moving = val));
         (function check() {

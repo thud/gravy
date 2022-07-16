@@ -33,6 +33,10 @@
         cursor: pointer;
     }
 
+    input {
+        width: 100%;
+    }
+
     #button-play-pause {
         background-color: transparent;
         border: none;
@@ -41,7 +45,6 @@
     #play {
         width: 0.6rem;
     }
-
 </style>
 
 <div

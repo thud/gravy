@@ -1,11 +1,11 @@
-import type { Writable } from 'svelte/store';
+import type { Writable, Subscriber, Unsubscriber } from 'svelte/store';
 import { writable, get } from 'svelte/store';
 
 // Map which can be subscribed to as a whole or used as a normal map;
 export default class StoreMap<K, V> {
     _map: Map<K, Writable<V>>;
-    _itemunsubfns: Map<K, Function>;
-    _setsubfns: Map<number, Function>;
+    _itemunsubfns: Map<K, Unsubscriber>;
+    _setsubfns: Map<number, Subscriber<Map<K, V>>>;
     _subfns_counter: number;
 
     constructor(arr: [K, V][]) {
@@ -44,7 +44,7 @@ export default class StoreMap<K, V> {
         this.runAllSubscriptions();
     }
 
-    subscribe(fn: Function): Function {
+    subscribe(fn: Subscriber<Map<K,V>>): Unsubscriber {
         //console.log('new subscription, running callback');
         //fn(this.getAll());
         const counter = this._subfns_counter++;
